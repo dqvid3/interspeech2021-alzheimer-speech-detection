@@ -1,0 +1,35 @@
+seed: 42
+model_name: "bert-large-uncased" # Model used for classification
+max_len: 275
+batch_size: 32
+epochs: 15
+learning_rate: 2.0e-5
+patience: 3
+n_splits: 10
+num_hypotheses: 5 # How many hypotheses to use for training the classifier
+
+transcription:
+  # Choose between 'whisperx' or 'wav2vec2'
+  model_type: "wav2vec2"
+  output_root: "results/transcripts"
+  
+  whisperx_options:
+    model_name: "large-v3"
+    device: "cuda"
+    compute_type: "float32"
+    # The number of hypotheses to generate. This sets both 'best_of' and 'beam_size'.
+    n_hypotheses: 30
+    batch_size: 32 # Internal batch size for processing segments of a single audio file.
+
+  wav2vec2_options:
+    acoustic_model_name: "facebook/wav2vec2-base-100h"
+    processor_name: "patrickvonplaten/wav2vec2-base-100h-with-lm"
+    device: "cuda"
+    batch_size: 8 # Number of audio files to process in a single batch.
+    # Parameters to generate 30 hypotheses (10 alphas * 3 betas)
+    num_alphas: 10
+    min_alpha: 0.4
+    max_alpha: 1.8
+    num_betas: 3
+    min_beta: 0.0
+    max_beta: 1.5
