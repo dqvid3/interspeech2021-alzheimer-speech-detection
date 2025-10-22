@@ -2,15 +2,12 @@ import os
 import glob
 from tqdm import tqdm
 import yaml
-import whisperx
-from faster_whisper.transcribe import TranscriptionOptions
-from transformers import Wav2Vec2ForCTC, Wav2Vec2ProcessorWithLM
-import torch
 
 from src.transcription import transcribe_with_whisperx, transcribe_batch_with_wav2vec2
 from src.utils import get_project_paths
 
 def load_whisperx_model(options):
+    import whisperx
     """Loads the WhisperX model based on the provided options."""
     print(f"Loading WhisperX model: {options['model_name']} on {options['device']}...")
     model = whisperx.load_model(
@@ -24,6 +21,8 @@ def load_whisperx_model(options):
     return model
 
 def load_wav2vec2_model(options):
+    from transformers import Wav2Vec2ForCTC, Wav2Vec2ProcessorWithLM
+    import torch
     """Loads the Wav2Vec2 model and processor based on the provided options."""
     print(f"Loading Wav2Vec2 model from: {options['acoustic_model_name']}")
     device = torch.device(options['device'] if torch.cuda.is_available() else "cpu")
@@ -39,13 +38,15 @@ def main():
         config = yaml.safe_load(f)
 
     paths = get_project_paths(config)
-    model_type = config['model_type']
-    
+    transcription_config = config['transcription']
+    model_type = transcription_config['model_type']
+
     if model_type == 'whisperx':
-        whisper_options = config['whisperx_options']
+        from faster_whisper.transcribe import TranscriptionOptions
+        whisper_options = transcription_config['whisperx_options']
         model = load_whisperx_model(whisper_options)
     elif model_type == 'wav2vec2':
-        wav2vec_options = config['wav2vec2_options']
+        wav2vec_options = transcription_config['wav2vec2_options']
         acoustic_model, processor = load_wav2vec2_model(wav2vec_options)
     else:
         raise ValueError(f"Unsupported model type: {model_type}.")
