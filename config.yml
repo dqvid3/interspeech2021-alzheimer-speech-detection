@@ -5,13 +5,21 @@ batch_size: 32
 epochs: 15
 learning_rate: 2.0e-5
 patience: 3
-n_splits: 10
+n_splits: 10 # Use 1 for a single train/validation split, >1 for cross-validation
+validation_split_fraction: 0.2 # Used only when n_splits is 1
 num_hypotheses: 5 # How many hypotheses to use for training the classifier
+
+data:
+  train_audio_root: "data/ADReSSo21-diagnosis-train/ADReSSo21/diagnosis/train/audio"
+  test_audio_root: "data/ADReSSo21-diagnosis-test/ADReSSo21/diagnosis/test-dist/audio"
+  test_labels_csv: "data/label_test_task1.csv"
+  processed_data_dir: "data/processed" # Directory for generated train.csv/test.csv
+
+results_root: "results" # Base directory for all outputs (transcripts, models, plots)
 
 transcription:
   # Choose between 'whisperx' or 'wav2vec2'
   model_type: "wav2vec2"
-  output_root: "results/transcripts"
   
   whisperx_options:
     model_name: "large-v3"

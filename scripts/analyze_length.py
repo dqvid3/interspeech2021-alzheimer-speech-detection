@@ -3,8 +3,11 @@ from transformers import BertTokenizer
 import matplotlib.pyplot as plt
 import seaborn as sns
 from tqdm import tqdm
+import yaml
 
-def analyze_token_lengths_separately(model_name, train_csv_path, test_csv_path):
+from src.utils import get_project_paths
+
+def analyze_token_lengths(config, paths):
     """
     Analyzes and visualizes the token length distributions for train and test sets separately.
     The recommendation for max_len is based strictly on the training set distribution.
@@ -16,6 +19,9 @@ def analyze_token_lengths_separately(model_name, train_csv_path, test_csv_path):
     """
     print("Loading datasets...")
     try:
+        model_name = config['model_name']
+        train_csv_path = paths['train_csv']
+        test_csv_path = paths['test_csv']
         df_train = pd.read_csv(train_csv_path)
         df_test = pd.read_csv(test_csv_path)
         train_texts = df_train['text'].dropna().astype(str)
@@ -73,8 +79,8 @@ def analyze_token_lengths_separately(model_name, train_csv_path, test_csv_path):
     plt.show()
 
 if __name__ == "__main__":
-    MODEL_NAME = "bert-large-uncased"
-    TRAIN_CSV = "data/processed/train.csv"
-    TEST_CSV = "data/processed/test.csv"
+    with open("config.yml", 'r') as f:
+        config = yaml.safe_load(f)
+    paths = get_project_paths(config)
     
-    analyze_token_lengths_separately(MODEL_NAME, TRAIN_CSV, TEST_CSV)
+    analyze_token_lengths(config, paths)

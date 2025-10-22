@@ -2,12 +2,15 @@ import os
 import glob
 from tqdm import tqdm
 import yaml
+import whisperx
+from faster_whisper.transcribe import TranscriptionOptions
+from transformers import Wav2Vec2ForCTC, Wav2Vec2ProcessorWithLM
+import torch
 
 from src.transcription import transcribe_with_whisperx, transcribe_batch_with_wav2vec2
+from src.utils import get_project_paths
 
 def load_whisperx_model(options):
-    import whisperx
-    from faster_whisper.transcribe import TranscriptionOptions
     """Loads the WhisperX model based on the provided options."""
     print(f"Loading WhisperX model: {options['model_name']} on {options['device']}...")
     model = whisperx.load_model(
@@ -21,8 +24,6 @@ def load_whisperx_model(options):
     return model
 
 def load_wav2vec2_model(options):
-    from transformers import Wav2Vec2ForCTC, Wav2Vec2ProcessorWithLM
-    import torch
     """Loads the Wav2Vec2 model and processor based on the provided options."""
     print(f"Loading Wav2Vec2 model from: {options['acoustic_model_name']}")
     device = torch.device(options['device'] if torch.cuda.is_available() else "cpu")
@@ -34,47 +35,40 @@ def load_wav2vec2_model(options):
     return model, processor
 
 def main():
-    # Load the transcription configuration
     with open("config.yml", 'r') as f:
-        config = yaml.safe_load(f)['transcription']
+        config = yaml.safe_load(f)
 
+    paths = get_project_paths(config)
     model_type = config['model_type']
     
     if model_type == 'whisperx':
         whisper_options = config['whisperx_options']
-        model_identifier = whisper_options['model_name']
         model = load_whisperx_model(whisper_options)
     elif model_type == 'wav2vec2':
         wav2vec_options = config['wav2vec2_options']
-        # Create a clean, unique folder name from the model names
-        acoustic_id = wav2vec_options['acoustic_model_name'].replace('/', '_')
-        processor_id = wav2vec_options['processor_name'].replace('/', '_')
-        model_identifier = f"{acoustic_id}__{processor_id}"
         acoustic_model, processor = load_wav2vec2_model(wav2vec_options)
     else:
-        raise ValueError(f"Unsupported model type: {model_type}. Choose 'whisperx' or 'wav2vec2'.")
+        raise ValueError(f"Unsupported model type: {model_type}.")
     
-    # The base path for all outputs of this specific model configuration
-    base_output_dir = os.path.join(config['output_root'], model_type, model_identifier)
+    base_output_dir = paths['transcripts_root']
     print(f"Outputting transcripts to: {base_output_dir}")
-    
-    # Process both the train and test sets
-    for dataset_type in ["train", "test"]:
-        if dataset_type == "train":
-            DATA_ROOT = "data/ADReSSo21-diagnosis-train/ADReSSo21/diagnosis/train/audio"
-        else: # test
-            DATA_ROOT = "data/ADReSSo21-diagnosis-test/ADReSSo21/diagnosis/test-dist/audio"
 
+    data_sources = {
+        "train": config['data']['train_audio_root'],
+        "test": config['data']['test_audio_root']
+    }
+    
+    for dataset_type, data_root in data_sources.items():
         output_dir = os.path.join(base_output_dir, dataset_type)
         
         # Find all .wav files
-        glob_pattern = os.path.join(DATA_ROOT, "*/*.wav") if dataset_type == "train" else os.path.join(DATA_ROOT, "*.wav")
+        glob_pattern = os.path.join(data_root, "*/*.wav") if dataset_type == "train" else os.path.join(data_root, "*.wav")
         all_audio_files = glob.glob(glob_pattern)
 
         # Filter out files that have already been processed to avoid re-transcribing
         audio_files_to_process = []
         for audio_path in all_audio_files:
-            relative_path = os.path.relpath(audio_path, DATA_ROOT)
+            relative_path = os.path.relpath(audio_path, data_root)
             output_filename = os.path.splitext(relative_path)[0] + ".json"
             output_path = os.path.join(output_dir, output_filename)
             if not os.path.exists(output_path):
@@ -105,7 +99,7 @@ def main():
                 transcribe_with_whisperx(model, audio_path, output_path)
             
         elif model_type == 'wav2vec2':
-            batch_size = wav2vec_options.get('batch_size', 1)
+            batch_size = wav2vec_options['batch_size']
             generate_multiple = True if dataset_type == "train" else False
             # Create batches of files and process them
             for i in tqdm(range(0, len(audio_files_to_process), batch_size), desc=f"Transcribing (Wav2Vec2) - {dataset_type}"):

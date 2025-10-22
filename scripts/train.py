@@ -26,8 +26,7 @@ def main(config):
     print(f"Reading transcripts from: {transcripts_root}")
 
     output_dir = "data/processed"
-    test_labels_csv = "data/label_test_task1.csv"
-    create_dataset_csv(transcripts_root, output_dir, test_labels_csv, num_hypotheses=config['num_hypotheses'])
+    create_dataset_csv(transcripts_root, output_dir, num_hypotheses=config['num_hypotheses'])
 
     os.makedirs(config['output_dir'], exist_ok=True)
     
