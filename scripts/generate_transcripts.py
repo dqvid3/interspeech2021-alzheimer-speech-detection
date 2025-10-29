@@ -7,11 +7,14 @@ from src.transcription import transcribe_with_whisperx, transcribe_batch_with_wa
 from src.utils import get_project_paths
 
 def load_whisperx_model(options):
-    import whisperx
     """Loads the WhisperX model based on the provided options."""
+    import whisperx
+    from huggingface_hub import snapshot_download
+
     print(f"Loading WhisperX model: {options['model_name']} on {options['device']}...")
+    model_path = snapshot_download(repo_id=options['model_name'])
     model = whisperx.load_model(
-        options['model_name'],
+        model_path,
         options['device'],
         compute_type=options['compute_type'],
         language="en",
@@ -21,17 +24,56 @@ def load_whisperx_model(options):
     return model
 
 def load_wav2vec2_model(options):
-    from transformers import Wav2Vec2ForCTC, Wav2Vec2ProcessorWithLM
+    """
+    Loads the Wav2Vec2 model and dynamically builds the processor with a custom KenLM model.
+    """
+    from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor, Wav2Vec2ProcessorWithLM
     import torch
-    """Loads the Wav2Vec2 model and processor based on the provided options."""
+    from pyctcdecode import build_ctcdecoder
+    from huggingface_hub import hf_hub_download
+
     print(f"Loading Wav2Vec2 model from: {options['acoustic_model_name']}")
     device = torch.device(options['device'] if torch.cuda.is_available() else "cpu")
+    acoustic_model = Wav2Vec2ForCTC.from_pretrained(options['acoustic_model_name']).to(device)
+
+    print(f"Loading base processor from: {options['base_processor_name']}")
+    base_processor = Wav2Vec2Processor.from_pretrained(options['base_processor_name'])
     
-    processor = Wav2Vec2ProcessorWithLM.from_pretrained(options['processor_name'])
-    model = Wav2Vec2ForCTC.from_pretrained(options['acoustic_model_name']).to(device)
+    lm_repo_id = options['lm_repo_id']
+    lm_filename = options['lm_filename']
+    print(f"Downloading Language Model '{lm_filename}' from '{lm_repo_id}'...")
+    lm_path = hf_hub_download(repo_id=lm_repo_id, filename=lm_filename)
     
-    print("Wav2Vec2 model loaded.")
-    return model, processor
+    print("Building CTC decoder with the new Language Model...")
+    vocab_dict = base_processor.tokenizer.get_vocab()
+    sorted_vocab_list = sorted(vocab_dict.items(), key=lambda item: item[1])
+    vocab = [x[0] for x in sorted_vocab_list]
+
+    unigram_list = None
+    if options.get('lm_unigrams_filename'):
+        unigrams_filename = options['lm_unigrams_filename']
+        print(f"Downloading unigrams '{unigrams_filename}' from '{lm_repo_id}'...")
+        unigrams_path = hf_hub_download(
+            repo_id=lm_repo_id, 
+            filename=unigrams_filename
+        )
+        with open(unigrams_path, 'r', encoding='utf-8') as f:
+            unigram_list = [line.strip() for line in f]
+
+    decoder = build_ctcdecoder(
+        labels=vocab,
+        kenlm_model_path=lm_path,
+        unigrams=unigram_list
+    )
+    
+    processor = Wav2Vec2ProcessorWithLM(
+        feature_extractor=base_processor.feature_extractor,
+        tokenizer=base_processor.tokenizer,
+        decoder=decoder
+    )
+    
+    print("Wav2Vec2 model and custom LM processor loaded successfully.")
+    return acoustic_model, processor
 
 def main():
     with open("config.yml", 'r') as f:
@@ -97,7 +139,7 @@ def main():
 
             # Process one file at a time for WhisperX
             for audio_path, output_path in tqdm(audio_files_to_process, desc=f"Transcribing (WhisperX) - {dataset_type}"):
-                transcribe_with_whisperx(model, audio_path, output_path)
+                transcribe_with_whisperx(model, audio_path, output_path, batch_size=whisper_options['batch_size'])
             
         elif model_type == 'wav2vec2':
             batch_size = wav2vec_options['batch_size']

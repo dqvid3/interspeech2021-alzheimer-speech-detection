@@ -1,9 +1,9 @@
-from multiprocessing import get_context
 import json
 import os
-import torchaudio
 import numpy as np
 import torch
+
+from src.utils import load_and_preprocess_audio
 
 def save_hypotheses_to_json(hypotheses_list, output_path):
     """
@@ -29,13 +29,12 @@ def save_hypotheses_to_json(hypotheses_list, output_path):
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(final_output, f, indent=2, ensure_ascii=False)
 
-def transcribe_with_whisperx(model, audio_file, output_path):
+def transcribe_with_whisperx(model, audio_file, output_path, batch_size):
     """
     Transcribes a single audio file using WhisperX and saves the hypotheses.
     """
     try:
-        # WhisperX internally handles batching for audio segments
-        result = model.transcribe(audio_file)
+        result = model.transcribe(audio_file, batch_size=batch_size)
     except Exception as e:
         print(f"Error during WhisperX transcription of {audio_file}: {e}")
         return
@@ -76,57 +75,42 @@ def transcribe_batch_with_wav2vec2(acoustic_model, processor, audio_files_batch,
     Transcribes a batch of audio files using Wav2Vec2 with an LM and saves the hypotheses.
     """
     try:
-        raw_audio_list = []
-        for audio_file in audio_files_batch:
-            waveform, sample_rate = torchaudio.load(audio_file)
-            if sample_rate != 16000:
-                waveform = torchaudio.transforms.Resample(orig_freq=sample_rate, new_freq=16000)(waveform)
-            if waveform.shape[0] > 1:
-                waveform = torch.mean(waveform, dim=0, keepdim=True)
-            raw_audio_list.append(waveform.squeeze().numpy())
-        
+        raw_audio_list = [load_and_preprocess_audio(f).numpy() for f in audio_files_batch]
         device = acoustic_model.device
 
         inputs = processor(raw_audio_list, return_tensors="pt", padding=True, sampling_rate=16000).to(device)
         with torch.no_grad():
             logits = acoustic_model(**inputs).logits
 
-        alphas = np.linspace(options['min_alpha'], options['max_alpha'], options['num_alphas'])
-        betas = np.linspace(options['min_beta'], options['max_beta'], options['num_betas'])
-
         # Dictionary to accumulate hypotheses for each file in the batch
         results_by_file = {path: [] for path in output_paths_batch}
+
+        def process_decoded_transcriptions(transcriptions):
+            for i, output_path in enumerate(output_paths_batch):
+                transcription_text = transcriptions.text[i].lower()
+                logit_score = transcriptions.logit_score[i]
+                
+                num_characters = len(transcription_text)
+                avg_log_score = logit_score / num_characters if num_characters > 0 else -100.0
+                
+                hypothesis = {
+                    "text": transcription_text,
+                    "avg_log_score": avg_log_score,
+                }
+                results_by_file[output_path].append(hypothesis)
         
-        num_processes = os.cpu_count() // 2
-        with get_context("fork").Pool(processes=num_processes) as pool:
-            if generate_multiple_hypotheses:
-                # Generate hypotheses for the entire batch at once
-                for alpha in alphas:
-                    for beta in betas:
-                        transcriptions = processor.batch_decode(logits.cpu().numpy(), alpha=alpha, beta=beta, pool=pool)
-                        
-                        # 'transcriptions' now contains results for each audio in the batch
-                        for i, output_path in enumerate(output_paths_batch):
-                            transcription_text = transcriptions.text[i].lower()
-                            logit_score = transcriptions.logit_score[i]
-                            
-                            num_characters = len(transcription_text)
-                            avg_log_score = logit_score / num_characters if num_characters > 0 else -100.0
-                            
-                            hypothesis = {
-                                "text": transcription_text,
-                                "avg_log_score": avg_log_score,
-                            }
-                            results_by_file[output_path].append(hypothesis)
-            else:
-                # For the test set, generate only the single best hypothesis
-                transcriptions = processor.batch_decode(logits.cpu().numpy(), pool=pool)
-                for i, output_path in enumerate(output_paths_batch):
-                    transcription_text = transcriptions.text[i].lower()
-                    logit_score = transcriptions.logit_score[i]
-                    num_characters = len(transcription_text)
-                    avg_log_score = logit_score / num_characters if num_characters > 0 else -100.0
-                    results_by_file[output_path].append({"text": transcription_text, "avg_log_score": avg_log_score})
+        if generate_multiple_hypotheses:
+            alphas = np.linspace(options['min_alpha'], options['max_alpha'], options['num_alphas'])
+            betas = np.linspace(options['min_beta'], options['max_beta'], options['num_betas'])
+            # Generate hypotheses for the entire batch at once
+            for alpha in alphas:
+                for beta in betas:
+                    decoded = processor.batch_decode(logits.cpu().numpy(), alpha=alpha, beta=beta)
+                    process_decoded_transcriptions(decoded)
+        else:
+            # For the test set, generate only the single best hypothesis
+            decoded = processor.batch_decode(logits.cpu().numpy())
+            process_decoded_transcriptions(decoded)
 
         # Save the results for each file
         for output_path, hypotheses_list in results_by_file.items():

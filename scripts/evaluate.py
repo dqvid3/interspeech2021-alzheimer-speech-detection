@@ -1,40 +1,16 @@
+import json
 import torch
 import os
 import numpy as np
 import yaml
 from torch.utils.data import DataLoader
-from transformers import BertTokenizer
 from sklearn.metrics import accuracy_score, classification_report
 from scipy.stats import mode
 from tqdm import tqdm
 
-from src.dataset import ADDataset, create_dataset_csv
-from src.model import BERTWithConfidence
+from src.training import eval_model
 from src.utils import set_seed, get_project_paths
-
-def get_predictions_and_probs(model, data_loader, device):
-    model.eval()
-
-    all_preds, all_probs = [], []
-    with torch.no_grad():
-        for batch in data_loader:
-            input_ids = batch['input_ids'].to(device)
-            attention_mask = batch['attention_mask'].to(device)
-            confidence_score = batch['confidence_score'].to(device)
-            
-            outputs = model(
-                input_ids=input_ids,
-                attention_mask=attention_mask,
-                confidence_score=confidence_score
-            )
-            
-            probs = torch.nn.functional.softmax(outputs, dim=1)
-            _, preds = torch.max(outputs, dim=1)
-
-            all_probs.extend(probs.cpu().numpy())
-            all_preds.extend(preds.cpu().numpy())
-
-    return all_preds, all_probs
+from src.factory import build_dataset, build_model, build_tokenizer
 
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -45,27 +21,16 @@ if __name__ == "__main__":
     set_seed(config['seed'])
 
     paths = get_project_paths(config)
-
-    print(f"Reading test transcripts from: {paths['transcripts_root']}")
-    
-    create_dataset_csv(
-        transcripts_root=paths['transcripts_root'],
-        output_dir=paths['processed_data_dir'],
-        test_labels_path=config['data']['test_labels_csv'],
-        num_hypotheses=None
-    )
+    train_config = config['training']
     
     model_dir = paths['classifier_output_dir']
     print(f"Loading models from: {model_dir}")
 
     fold_dirs = sorted([d for d in os.listdir(model_dir) if d.startswith("fold_")])
 
-    print(f"Loading tokenizer: {config['model_name']}")
-    tokenizer = BertTokenizer.from_pretrained(config['model_name'])
-
-    print(f"Loading test data from: {paths['test_csv']}")
-    test_dataset = ADDataset(paths['test_csv'], tokenizer, config['max_len'])
-    test_loader = DataLoader(test_dataset, batch_size=config['batch_size'], shuffle=False)
+    tokenizer = build_tokenizer(config)
+    test_dataset = build_dataset(config, paths, 'test', tokenizer)
+    test_loader = DataLoader(test_dataset, batch_size=train_config['batch_size'], shuffle=False, num_workers=8, pin_memory=True)
 
     true_labels = test_dataset.df['label'].values
     all_fold_predictions = []
@@ -73,11 +38,11 @@ if __name__ == "__main__":
 
     for fold_dir in tqdm(fold_dirs, desc="Evaluating folds"):
         model_path = os.path.join(model_dir, fold_dir, "best_model.bin")
-        
-        model = BERTWithConfidence(config['model_name'], num_classes=2).to(device)
+
+        model = build_model(config, device)
         model.load_state_dict(torch.load(model_path, map_location=device))
 
-        predictions, probabilities = get_predictions_and_probs(model, test_loader, device)
+        predictions, probabilities = eval_model(model, test_loader, device)
         all_fold_predictions.append(predictions)
         all_fold_probabilities.append(probabilities)
 
@@ -107,3 +72,24 @@ if __name__ == "__main__":
     
     print("Classification Report for Ensemble (Probability Averaging)")
     print(classification_report(true_labels, ensemble_preds_avg, target_names=['Control', 'ProbableAD']))
+
+    # Save final evaluation report
+    final_report = {
+        "mean_accuracy": mean_acc,
+        "std_dev_accuracy": std_acc,
+        "fold_accuracies": {f"fold_{i+1}": acc for i, acc in enumerate(fold_accuracies)},
+        "ensemble_accuracy_majority_vote": ensemble_accuracy_vote,
+        "ensemble_accuracy_probability_averaging": ensemble_accuracy_avg,
+        "classification_report_majority_vote": classification_report(
+            true_labels, ensemble_preds_vote, target_names=['Control', 'ProbableAD'], output_dict=True
+        ),
+        "classification_report_probability_averaging": classification_report(
+            true_labels, ensemble_preds_avg, target_names=['Control', 'ProbableAD'], output_dict=True
+        )
+    }
+
+    report_path = os.path.join(model_dir, "evaluation_report.json")
+    with open(report_path, 'w') as f:
+        json.dump(final_report, f, indent=2)
+    
+    print(f"\nFinal evaluation report saved to: {report_path}")
