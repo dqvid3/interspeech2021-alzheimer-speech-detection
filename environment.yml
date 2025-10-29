@@ -1,0 +1,18 @@
+name: ad-detect
+channels:
+  - pytorch
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - transformers>=4.40.0
+  - tokenizers
+  - pyctcdecode
+  - pip:
+    - kenlm
+  - scikit-learn
+  - pandas
+  - matplotlib
+  - seaborn
+  - tqdm
+  - pyyaml
