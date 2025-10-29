@@ -2,20 +2,35 @@ import torch
 from torch.utils.data import Dataset
 import pandas as pd
 from tqdm import tqdm
+import re
 import os
 import glob
 import json
 import math
+import numpy as np
 
 class ADDataset(Dataset):
     """
     Custom PyTorch Dataset for the Alzheimer's Dementia detection task.
     Reads a CSV file containing text, confidence scores, and labels.
+    Can also load pre-extracted acoustic features for fusion models.
     """
-    def __init__(self, csv_path, tokenizer, max_len):
+    def __init__(self, csv_path, tokenizer, max_len, acoustic_features_path=None, acoustic_metadata_path=None):
         self.df = pd.read_csv(csv_path)
         self.tokenizer = tokenizer
         self.max_len = max_len
+
+        self.acoustic_features = None
+        self.file_to_feature_idx = None
+
+        if acoustic_features_path and acoustic_metadata_path:
+            print(f"Loading acoustic features from: {acoustic_features_path}")
+            self.acoustic_features = np.load(acoustic_features_path)
+            
+            with open(acoustic_metadata_path, 'r') as f:
+                metadata = json.load(f)
+            
+            self.file_to_feature_idx = {os.path.basename(path): i for i, path in enumerate(metadata)}
 
     def __len__(self):
         return len(self.df)
@@ -25,6 +40,7 @@ class ADDataset(Dataset):
         text = str(row.text)
         score = row.confidence_score
         label = row.label
+        source_file = row.source_file
 
         encoding = self.tokenizer(
             text,
@@ -37,12 +53,19 @@ class ADDataset(Dataset):
             return_tensors='pt',
         )
 
-        return {
+        item = {
             'input_ids': encoding['input_ids'].flatten(),
             'attention_mask': encoding['attention_mask'].flatten(),
             'confidence_score': torch.tensor(score, dtype=torch.float),
             'label': torch.tensor(label, dtype=torch.long)
         }
+        
+        if self.acoustic_features is not None:
+            feature_idx = self.file_to_feature_idx.get(source_file)
+            acoustic_feature = self.acoustic_features[feature_idx]
+            item['acoustic_feature'] = torch.tensor(acoustic_feature, dtype=torch.float)
+
+        return item
     
 def create_dataset_csv(transcripts_root, output_dir, test_labels_path=None, num_hypotheses=None):
     """
@@ -102,9 +125,14 @@ def create_dataset_csv(transcripts_root, output_dir, test_labels_path=None, num_
 
         for hypo in hypotheses_to_process:
             text = hypo.get("text", "")
-            # Use a very low default log score if not present
-            avg_log_score = hypo.get("avg_log_score", -100.0) 
+
+            text_orig = text
             
+            # Normalize disfluency annotations
+            text = re.sub(r'\[\s*uh\s*\]', 'uh', text)
+            text = re.sub(r'\[\s*um\s*\]', 'um', text)
+
+            avg_log_score = hypo.get("avg_log_score", -100.0)             
             # Convert log-score to a confidence score in the [0, 1] range
             confidence_score = math.exp(avg_log_score)
 

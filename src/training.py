@@ -25,71 +25,74 @@ class EarlyStopping:
             if self.counter >= self.patience:
                 return True  # Early stop
         return False
+    
+def _process_batch(model, batch, device):
+    """Processes a single batch and returns model outputs."""
+    model_inputs = {
+        'input_ids': batch['input_ids'].to(device, non_blocking=True),
+        'attention_mask': batch['attention_mask'].to(device, non_blocking=True)
+    }
+    
+    # Add optional inputs based on model type
+    if 'confidence_score' in batch:
+        model_inputs['confidence_score'] = batch['confidence_score'].to(device, non_blocking=True)
+        
+    if 'acoustic_feature' in batch:
+        model_inputs['acoustic_feature'] = batch['acoustic_feature'].to(device, non_blocking=True)
 
-def train_epoch(model, data_loader, loss_fn, optimizer, scheduler, device):
+    outputs = model(**model_inputs)
+    return outputs
+
+def train_epoch(model, data_loader, loss_fn, optimizer, scheduler, device, gradient_clip_norm=0.0):
     """Performs a single training epoch."""
     model.train()
     total_loss = 0
     
     for batch in tqdm(data_loader, desc="Training"):
-        input_ids = batch['input_ids'].to(device)
-        attention_mask = batch['attention_mask'].to(device)
-        confidence_score = batch['confidence_score'].to(device)
-        labels = batch['label'].to(device)
-
         optimizer.zero_grad()
+
+        outputs = _process_batch(model, batch, device)
+        labels = batch['label'].to(device, non_blocking=True)
         
-        # Forward pass
-        outputs = model(
-            input_ids=input_ids,
-            attention_mask=attention_mask,
-            confidence_score=confidence_score
-        )
-        
-        # Calculate the loss
         loss = loss_fn(outputs, labels)
         total_loss += loss.item()
 
-        # Backward pass
         loss.backward()
         # Apply gradient clipping to prevent exploding gradients
-        #torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
-        
-        # Update the model weights
+        if gradient_clip_norm > 0:
+            torch.nn.utils.clip_grad_norm_(model.parameters(), gradient_clip_norm)
+            
         optimizer.step()
-        # Update the learning rate scheduler
         scheduler.step()
         
     return total_loss / len(data_loader)
 
-def eval_model(model, data_loader, loss_fn, device):
+def eval_model(model, data_loader, device, loss_fn=None):
     """Performs model evaluation on a given dataset."""
     model.eval()
     total_loss = 0
     all_preds, all_labels = [], []
+    all_probs = []
     
     with torch.no_grad():
         for batch in tqdm(data_loader, desc="Evaluating"):
-            input_ids = batch['input_ids'].to(device)
-            attention_mask = batch['attention_mask'].to(device)
-            confidence_score = batch['confidence_score'].to(device)
-            labels = batch['label'].to(device)
-
-            outputs = model(
-                input_ids=input_ids,
-                attention_mask=attention_mask,
-                confidence_score=confidence_score
-            )
+            outputs = _process_batch(model, batch, device)
+            labels = batch['label'].to(device, non_blocking=True)
             
-            loss = loss_fn(outputs, labels)
-            total_loss += loss.item()
+            if loss_fn:
+                loss = loss_fn(outputs, labels)
+                total_loss += loss.item()
             
-            # Get predictions (the class with the highest probability)
+            probs = torch.nn.functional.softmax(outputs, dim=1)
             _, preds = torch.max(outputs, dim=1)
+
             all_preds.extend(preds.cpu().numpy())
+            all_probs.extend(probs.cpu().numpy())
             all_labels.extend(labels.cpu().numpy())
-            
-    avg_loss = total_loss / len(data_loader)
-    accuracy = accuracy_score(all_labels, all_preds)
+
+    if loss_fn:
+        avg_loss = total_loss / len(data_loader)
+        accuracy = accuracy_score(all_labels, all_preds)
+        return avg_loss, accuracy
     
-    return avg_loss, accuracy
+    return all_preds, all_probs
