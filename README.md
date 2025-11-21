@@ -21,7 +21,7 @@ To replicate the **multiple hypotheses generation** required for Models 4 and 5 
 
 *   **Wav2Vec2:** We utilize the `pyctcdecode` decoder with a KenLM language model. To generate diversity, we perform a grid sweep over the decoding hyperparameters. The scoring function used to rank hypotheses $y$ is defined as:
 
-    $$ \text{Score}(y) = \log P_{\text{AM}}(y|x) + \alpha \cdot \log P_{\text{LM}}(y) + \beta \cdot |y| $$
+    $\text{Score}(y) = \log P_{\text{AM}}(y|x) + \alpha \cdot \log P_{\text{LM}}(y) + \beta \cdot |y|$
 
     Where:
     *   $\log P_{\text{AM}}$ is the acoustic model probability (Wav2Vec2).
