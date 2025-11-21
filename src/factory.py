@@ -13,12 +13,11 @@ def build_tokenizer(config):
 def build_dataset(config, paths, dataset_type, tokenizer):
     """Factory function to build and return a dataset (train or test)."""
     model_type = config['model_type']
-    is_fusion = model_type == 'fusion'
     print(f"Reading test transcripts from: {paths['transcripts_root']}")
-    if dataset_type == 'test' or is_fusion:
-        num_hypotheses = 1
-    elif dataset_type == 'train':
+    if dataset_type == 'train' and model_type == 'confidence':
         num_hypotheses = config['num_hypotheses']
+    else:
+        num_hypotheses = 1
 
     create_dataset_csv(
         transcripts_root=paths['transcripts_root'],
@@ -35,7 +34,7 @@ def build_dataset(config, paths, dataset_type, tokenizer):
         'max_len': config['max_len']
     }
 
-    if is_fusion:
+    if model_type == 'fusion':
         features_path, metadata_path = get_acoustic_feature_paths(config, dataset_type)
         dataset_args['acoustic_features_path'] = features_path
         dataset_args['acoustic_metadata_path'] = metadata_path

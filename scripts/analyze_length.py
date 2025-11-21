@@ -3,9 +3,8 @@ from transformers import BertTokenizer
 import matplotlib.pyplot as plt
 import seaborn as sns
 from tqdm import tqdm
-import yaml
 
-from src.utils import get_project_paths
+from src.utils import setup_experiment
 
 def analyze_token_lengths(config, paths):
     """
@@ -44,7 +43,7 @@ def analyze_token_lengths(config, paths):
     test_series = pd.Series(test_token_lengths)
 
     print("\nTraining Set Statistics")
-    train_stats = train_series.describe(percentiles=[0.90, 0.95, 0.99])
+    train_stats = train_series.describe(percentiles=[0.90, 0.95, 0.96, 0.97, 0.99])
     print(train_stats)
 
     print("\nTest Set Statistics")
@@ -79,8 +78,6 @@ def analyze_token_lengths(config, paths):
     plt.show()
 
 if __name__ == "__main__":
-    with open("config.yml", 'r') as f:
-        config = yaml.safe_load(f)
-    paths = get_project_paths(config)
+    config, paths, _ = setup_experiment()
     
     analyze_token_lengths(config, paths)

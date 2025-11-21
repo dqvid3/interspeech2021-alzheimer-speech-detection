@@ -2,27 +2,19 @@ import json
 import torch
 import os
 import numpy as np
-import yaml
 from torch.utils.data import DataLoader
 from sklearn.metrics import accuracy_score, classification_report
 from scipy.stats import mode
 from tqdm import tqdm
 
 from src.training import eval_model
-from src.utils import set_seed, get_project_paths
+from src.utils import setup_experiment
 from src.factory import build_dataset, build_model, build_tokenizer
 
 if __name__ == "__main__":
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}")
+    config, paths, device = setup_experiment()
 
-    with open("config.yml", 'r') as f:
-        config = yaml.safe_load(f)
-    set_seed(config['seed'])
-
-    paths = get_project_paths(config)
     train_config = config['training']
-    
     model_dir = paths['classifier_output_dir']
     print(f"Loading models from: {model_dir}")
 

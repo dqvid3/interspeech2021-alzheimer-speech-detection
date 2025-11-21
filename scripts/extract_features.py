@@ -31,7 +31,7 @@ def get_pooled_features_from_audio(model, processor, audio_path, device):
         return feature_vectors
 
     except Exception as e:
-        print(f"Errore durante l'elaborazione di {os.path.basename(audio_path)}: {e}")
+        print(f"Error during processing of {os.path.basename(audio_path)}: {e}")
         return None
 
 def main():

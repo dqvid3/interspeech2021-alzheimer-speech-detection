@@ -30,7 +30,6 @@ class ADBERTClassifier(nn.Module):
             self.acoustic_processor = nn.Sequential(
                 nn.Linear(acoustic_dim, reduced_acoustic_dim),
                 nn.ReLU(),
-                #nn.Dropout(0.1)
             )
             classifier_input_size = self.bert_hidden_size + reduced_acoustic_dim
             classifier_hidden_size = fusion_config['classifier_hidden_size']
@@ -40,7 +39,6 @@ class ADBERTClassifier(nn.Module):
                 nn.Dropout(0.1),
                 nn.Linear(classifier_hidden_size, num_classes)
             )
-            #self.acoustic_processor.apply(init_bert_weights)
 
         elif self.model_type == 'confidence':
             confidence_embedding_size = 1024
@@ -59,8 +57,6 @@ class ADBERTClassifier(nn.Module):
             )
         else:
             raise ValueError(f"Unknown model_type '{self.model_type}'.")
-        
-        #self.classifier.apply(init_bert_weights)
 
     def forward(self, input_ids, attention_mask, **kwargs):
         # Pass through BERT
@@ -71,7 +67,7 @@ class ADBERTClassifier(nn.Module):
         
         if self.model_type == 'fusion':
             hidden_states = outputs.hidden_states
-            linguistic_output = hidden_states[-2][:, 0, :]
+            linguistic_output = hidden_states[-1][:, 0, :]
             
             acoustic_feature = kwargs.get('acoustic_feature')
             acoustic_output = self.acoustic_processor(acoustic_feature)
@@ -96,9 +92,3 @@ class ADBERTClassifier(nn.Module):
             logits = self.classifier(pooled_output)
             
         return logits
-
-def init_bert_weights(module, initializer_range=0.02):
-    if isinstance(module, nn.Linear):
-        module.weight.data.normal_(mean=0.0, std=initializer_range)
-        if module.bias is not None:
-            module.bias.data.zero_()

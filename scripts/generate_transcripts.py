@@ -1,18 +1,21 @@
 import os
 import glob
 from tqdm import tqdm
-import yaml
 
 from src.transcription import transcribe_with_whisperx, transcribe_batch_with_wav2vec2
-from src.utils import get_project_paths
+from src.utils import setup_experiment
 
-def load_whisperx_model(options):
+def load_whisperx_model(options, device):
     """Loads the WhisperX model based on the provided options."""
     import whisperx
     from huggingface_hub import snapshot_download
 
-    print(f"Loading WhisperX model: {options['model_name']} on {options['device']}...")
-    model_path = snapshot_download(repo_id=options['model_name'])
+    print(f"Loading WhisperX model: {options['model_name']} on {device}...")
+    if options['model_name'] != 'large-v3':
+        model_path = snapshot_download(repo_id=options['model_name'])
+    else:
+        model_path = options['model_name']
+
     model = whisperx.load_model(
         model_path,
         options['device'],
@@ -23,7 +26,7 @@ def load_whisperx_model(options):
     print("WhisperX model loaded.")
     return model
 
-def load_wav2vec2_model(options):
+def load_wav2vec2_model(options, device):
     """
     Loads the Wav2Vec2 model and dynamically builds the processor with a custom KenLM model.
     """
@@ -32,12 +35,11 @@ def load_wav2vec2_model(options):
     from pyctcdecode import build_ctcdecoder
     from huggingface_hub import hf_hub_download
 
-    print(f"Loading Wav2Vec2 model from: {options['acoustic_model_name']}")
-    device = torch.device(options['device'] if torch.cuda.is_available() else "cpu")
-    acoustic_model = Wav2Vec2ForCTC.from_pretrained(options['acoustic_model_name']).to(device)
+    print(f"Loading Wav2Vec2 model from: {options['model_name']}")
+    acoustic_model = Wav2Vec2ForCTC.from_pretrained(options['model_name']).to(device)
 
-    print(f"Loading base processor from: {options['base_processor_name']}")
-    base_processor = Wav2Vec2Processor.from_pretrained(options['base_processor_name'])
+    print(f"Loading base processor from: {options['model_name']}")
+    base_processor = Wav2Vec2Processor.from_pretrained(options['model_name'])
     
     lm_repo_id = options['lm_repo_id']
     lm_filename = options['lm_filename']
@@ -76,20 +78,17 @@ def load_wav2vec2_model(options):
     return acoustic_model, processor
 
 def main():
-    with open("config.yml", 'r') as f:
-        config = yaml.safe_load(f)
-
-    paths = get_project_paths(config)
+    config, paths, device = setup_experiment()
     transcription_config = config['transcription']
     model_type = transcription_config['model_type']
 
     if model_type == 'whisperx':
         from faster_whisper.transcribe import TranscriptionOptions
         whisper_options = transcription_config['whisperx_options']
-        model = load_whisperx_model(whisper_options)
+        model = load_whisperx_model(whisper_options, device)
     elif model_type == 'wav2vec2':
         wav2vec_options = transcription_config['wav2vec2_options']
-        acoustic_model, processor = load_wav2vec2_model(wav2vec_options)
+        acoustic_model, processor = load_wav2vec2_model(wav2vec_options, device)
     else:
         raise ValueError(f"Unsupported model type: {model_type}.")
     

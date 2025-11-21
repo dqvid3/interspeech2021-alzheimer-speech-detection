@@ -1,6 +1,5 @@
 from sklearn.model_selection import StratifiedGroupKFold
 import torch
-import yaml
 import json
 import os
 from torch.utils.data import DataLoader, Subset
@@ -8,20 +7,13 @@ from transformers import get_linear_schedule_with_warmup
 from torch.optim import AdamW
 
 from src.training import train_epoch, eval_model, EarlyStopping
-from src.utils import set_seed, get_project_paths
+from src.utils import setup_experiment
 from src.factory import build_dataset, build_model, build_tokenizer
 
 def main():
-    with open("config.yml", 'r') as f:
-        config = yaml.safe_load(f)
-    set_seed(config['seed'])
-
-    paths = get_project_paths(config)
-    os.makedirs(paths['classifier_output_dir'], exist_ok=True)
+    config, paths, device = setup_experiment()
     
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}")
-
+    os.makedirs(paths['classifier_output_dir'], exist_ok=True)
     tokenizer = build_tokenizer(config)
     full_train_dataset = build_dataset(config, paths, 'train', tokenizer)
     

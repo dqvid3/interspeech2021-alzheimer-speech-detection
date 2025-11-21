@@ -1,10 +1,11 @@
 import random
 import numpy as np
 import torch
+import yaml
 import torchaudio
 import os
 
-def set_seed(seed_value=42):
+def _set_seed(seed_value=42):
     """Sets the seed for generating random numbers to ensure reproducibility."""
     os.environ['CUBLAS_WORKSPACE_CONFIG'] = ':4096:8'
     random.seed(seed_value)
@@ -60,7 +61,7 @@ def get_acoustic_feature_paths(config, dataset_type):
     metadata_path = os.path.join(features_base_dir, dataset_type, '_metadata.json')
     return features_path, metadata_path
 
-def get_project_paths(config):
+def _get_project_paths(config):
     """
     Generates all necessary project paths from the configuration dictionary.
     This centralizes path management and ensures consistency across scripts.
@@ -72,14 +73,14 @@ def get_project_paths(config):
         asr_model_id = transcription_config['whisperx_options']['model_name'].replace('/', '_')
     else: # wav2vec2
         wav2vec_opts = transcription_config['wav2vec2_options']
-        acoustic_id = wav2vec_opts['acoustic_model_name'].replace('/', '_')
+        acoustic_id = wav2vec_opts['model_name'].replace('/', '_')
         if 'lm_repo_id' in wav2vec_opts and wav2vec_opts['lm_repo_id']:
             lm_id = wav2vec_opts['lm_repo_id'].replace('/', '_')
             asr_model_id = f"{acoustic_id}_LM_{lm_id}"
         else:
             asr_model_id = acoustic_id
 
-    classifier_model_name = config['model_name'].replace("/", "_")
+    classifier_model_name = config['model_name']
     num_hypotheses = config['num_hypotheses']
     model_type_classifier = config['model_type']
     hypo_str = f"_hypo{num_hypotheses}" if model_type_classifier == 'confidence' else ""
@@ -94,6 +95,25 @@ def get_project_paths(config):
         'classifier_output_dir': os.path.join(results_root, "models", classifier_folder_name),
         'train_csv': os.path.join(processed_data_dir, "train.csv"),
         'test_csv': os.path.join(processed_data_dir, "test.csv"),
-        'processed_data_dir': processed_data_dir
+        'processed_data_dir': processed_data_dir,
+        'asr_model_type': asr_model_type,
+        'asr_model_id': asr_model_id
     }
     return paths
+
+def setup_experiment():
+    with open("config.yml", 'r') as f:
+        config = yaml.safe_load(f)
+
+    _set_seed(config['seed'])
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Using device: {device}")
+
+    if config['model_type'] == 'confidence':
+        config['model_name'] = config['model_name_large']
+    else:
+        config['model_name'] = config['model_name_base']
+    
+    paths = _get_project_paths(config)
+    
+    return config, paths, device
