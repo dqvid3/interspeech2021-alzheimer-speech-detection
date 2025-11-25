@@ -1,0 +1,51 @@
+digraph ADBERT_Confidence_Large {
+    rankdir=TB;
+    newrank=true;
+    node [shape=box, style="filled,rounded", fontname="Arial", fontsize=11];
+    edge [fontname="Arial", fontsize=10];
+
+    # Inputs
+    subgraph cluster_inputs {
+        label = "Inputs";
+        style = dashed;
+        input_ids [label="Input IDs", fillcolor="#E0E0E0"];
+        att_mask [label="Attention Mask", fillcolor="#E0E0E0"];
+        conf_score [label="Confidence Score\n(Scalar)", fillcolor="#98FB98"];
+    }
+
+    # BERT Large
+    bert [label="BERT Large\n(24 Layers)", fillcolor="#ADD8E6"];
+    
+    subgraph cluster_bert_extract {
+        label = "Last 3 Layers Extraction";
+        style = dotted;
+        l24 [label="Layer 24 [CLS]\n(1024)", fillcolor="#B0E0E6"];
+        l23 [label="Layer 23 [CLS]\n(1024)", fillcolor="#B0E0E6"];
+        l22 [label="Layer 22 [CLS]\n(1024)", fillcolor="#B0E0E6"];
+    }
+
+    # Confidence Logic
+    conf_proc [label="Linear (1 -> 1024)\n+ ReLU", fillcolor="#90EE90"];
+
+    # Fusion
+    # 3072 (text) + 1024 (conf) = 4096
+    concat [label="Concatenation\n(Text + Conf)\nSize: 4096", shape=trapezium, fillcolor="#FFE4B5"];
+    
+    # Classifier
+    classifier [label="Linear\n(4096 -> 2)", fillcolor="#FFDAB9"];
+
+    # Connections
+    input_ids -> bert;
+    att_mask -> bert;
+    
+    bert -> l24;
+    bert -> l23;
+    bert -> l22;
+    
+    conf_score -> conf_proc;
+    
+    {l24, l23, l22} -> concat;
+    conf_proc -> concat;
+    
+    concat -> classifier;
+}

@@ -1,0 +1,49 @@
+digraph ADBERT_Fusion_Base {
+    rankdir=TB;
+    node [shape=box, style="filled,rounded", fontname="Arial", fontsize=11];
+    edge [fontname="Arial", fontsize=10];
+
+    # Inputs
+    subgraph cluster_inputs {
+        label = "Inputs";
+        style = dashed;
+        input_ids [label="Input IDs", fillcolor="#E0E0E0"];
+        att_mask [label="Attention Mask", fillcolor="#E0E0E0"];
+        acoustic [label="Acoustic Feature\n(size: 1024)", fillcolor="#98FB98"];
+    }
+
+    # Text Branch (Base)
+    bert [label="BERT Base\n(12 Layers)", fillcolor="#ADD8E6"];
+    bert_cls [label="Layer 12 [CLS]\n(size: 768)", fillcolor="#B0E0E6"];
+
+    # Acoustic Branch
+    ac_proc [label="Linear (1024 -> 256)\n+ ReLU", fillcolor="#90EE90"];
+
+    # Fusion
+    concat [label="Concatenation\n(size: 1024)", shape=trapezium, fillcolor="#FFE4B5"];
+
+    # Classifier MLP Compacted
+    subgraph cluster_classifier {
+        label = "Classifier MLP";
+        style = solid;
+        color = orange;
+        
+        # Hidden Layer Block
+        mlp_hidden [label="Linear (1024 -> 256)\n+ ReLU + Dropout(0.1)", fillcolor="#FFDAB9"];
+        
+        # Output Layer Block
+        mlp_out [label="Linear (Output)\n(256 -> 2)", fillcolor="#FFDAB9"];
+    }
+    
+    # Connections
+    input_ids -> bert;
+    att_mask -> bert;
+    bert -> bert_cls;
+
+    acoustic -> ac_proc;
+
+    bert_cls -> concat;
+    ac_proc -> concat;
+
+    concat -> mlp_hidden -> mlp_out;
+}

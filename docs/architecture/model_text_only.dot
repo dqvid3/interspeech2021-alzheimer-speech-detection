@@ -1,0 +1,28 @@
+digraph ADBERT_TextOnly_Base {
+    rankdir=TB;
+    node [shape=box, style="filled,rounded", fontname="Arial", fontsize=11];
+    edge [fontname="Arial", fontsize=10];
+
+    # Inputs
+    subgraph cluster_inputs {
+        label = "Inputs";
+        style = dashed;
+        input_ids [label="Input IDs", fillcolor="#E0E0E0"];
+        att_mask [label="Attention Mask", fillcolor="#E0E0E0"];
+    }
+
+    # BERT Base
+    bert [label="BERT Base\n(12 Layers)", fillcolor="#ADD8E6"];
+    
+    # Extraction
+    last_cls [label="Layer 12 [CLS]\n(size: 768)", fillcolor="#B0E0E6"];
+
+    # Classifier
+    classifier [label="Linear\n(768 -> 2)", fillcolor="#FFDAB9"];
+
+    # Connections
+    input_ids -> bert;
+    att_mask -> bert;
+    bert -> last_cls;
+    last_cls -> classifier;
+}
