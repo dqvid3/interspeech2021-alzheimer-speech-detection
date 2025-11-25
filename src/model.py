@@ -65,8 +65,9 @@ class ADBERTClassifier(nn.Module):
             attention_mask=attention_mask
         )
         
+        hidden_states = outputs.hidden_states
+
         if self.model_type == 'fusion':
-            hidden_states = outputs.hidden_states
             linguistic_output = hidden_states[-1][:, 0, :]
             
             acoustic_feature = kwargs.get('acoustic_feature')
@@ -76,9 +77,8 @@ class ADBERTClassifier(nn.Module):
             logits = self.classifier(combined_output)
 
         elif self.model_type == 'confidence':
-            hidden_states = outputs.hidden_states
-            cls_tokens = [layer[:, 0, :] for layer in hidden_states[-3:]]
-            bert_output = torch.cat(cls_tokens, dim=1)
+            cls_outputs = [layer[:, 0, :] for layer in hidden_states[-3:]]
+            bert_output = torch.cat(cls_outputs, dim=1)
 
             confidence_score = kwargs.get('confidence_score')
             # Add a dimension for the Linear layer: (batch_size) -> (batch_size, 1)
@@ -88,7 +88,7 @@ class ADBERTClassifier(nn.Module):
             logits = self.classifier(combined_output)
 
         elif self.model_type == 'text_only':
-            pooled_output = outputs.pooler_output
-            logits = self.classifier(pooled_output)
+            linguistic_output = hidden_states[-1][:, 0, :]
+            logits = self.classifier(linguistic_output)
             
         return logits

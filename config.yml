@@ -1,6 +1,9 @@
 seed: 42
-model_type: 'fusion' # 'confidence', 'text_only', 'fusion'
-model_name: "bert-base-uncased" # Model used for classification
+model_type: 'text_only' # 'confidence', 'text_only', 'fusion'
+# 'confidence' -> model_name_large
+# 'fusion' and 'text_only' -> model_name_base
+model_name_base: "bert-base-uncased"
+model_name_large: "bert-large-uncased"
 num_classes: 2
 max_len: 288
 n_splits: 10 # Use 1 for a single train/validation split, >1 for cross-validation
@@ -29,34 +32,30 @@ feature_extraction:
 fusion_model:
   acoustic_feature_layer: "layer_10" 
   acoustic_dim: 1024
-  classifier_hidden_size: 1024
+  classifier_hidden_size: 256
   reduced_acoustic_dim: 256
 
 transcription:
   # Choose between 'whisperx' or 'wav2vec2'
-  model_type: "wav2vec2"
+  model_type: "whisperx"
   
   whisperx_options:
-    #model_name: "large-v3"
-    model_name: "nyrahealth/faster_CrisperWhisper"
-    device: "cuda"
+    model_name: "large-v3"
+    #model_name: "nyrahealth/faster_CrisperWhisper"
     compute_type: "float32"
     # The number of hypotheses to generate. This sets both 'best_of' and 'beam_size'.
     n_hypotheses: 30
     batch_size: 16 # Internal batch size for processing segments of a single audio file.
 
   wav2vec2_options:
-    acoustic_model_name: "facebook/wav2vec2-large-960h-lv60-self"
-    base_processor_name: "facebook/wav2vec2-large-960h-lv60-self"
-    #acoustic_model_name: "jonatasgrosman/wav2vec2-large-xlsr-53-english"
-    #base_processor_name: "jonatasgrosman/wav2vec2-large-xlsr-53-english"
+    model_name: "facebook/wav2vec2-large-960h-lv60-self"
+    #model_name: "jonatasgrosman/wav2vec2-large-xlsr-53-english"
     #lm_repo_id: "BramVanroy/kenlm_wikipedia_en"
     #lm_filename: "wiki_en_token.arpa.bin"
     lm_repo_id: "patrickvonplaten/wav2vec2-base-100h-with-lm"
     lm_filename: "language_model/4-gram.bin"
     lm_unigrams_filename: "language_model/unigrams.txt"
 
-    device: "cuda"
     batch_size: 8 # Number of audio files to process in a single batch.
     # Parameters to generate 30 hypotheses (10 alphas * 3 betas)
     num_alphas: 10
