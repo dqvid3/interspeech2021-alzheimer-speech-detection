@@ -11,7 +11,7 @@ from sklearn.svm import SVC
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline   
 from sklearn.model_selection import StratifiedKFold
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, precision_recall_fscore_support
 from scipy.stats import mode
 from tqdm import tqdm
 
@@ -131,6 +131,7 @@ def main():
             predictions_array = np.array(all_test_predictions)
             ensemble_preds_vote, _ = mode(predictions_array, axis=0, keepdims=False)
             ensemble_accuracy_vote = accuracy_score(y_test_full, ensemble_preds_vote)
+            prec_vote, rec_vote, f1_vote, _ = precision_recall_fscore_support(y_test_full, ensemble_preds_vote, average=None)
 
             # Ensemble: Probability Averaging
             # Stack probabilities: (10 models, num_test_samples, 2 classes)
@@ -138,22 +139,37 @@ def main():
             mean_probs = np.mean(probabilities_array, axis=0)
             ensemble_preds_avg = np.argmax(mean_probs, axis=1)
             ensemble_accuracy_avg = accuracy_score(y_test_full, ensemble_preds_avg)
+            prec_avg, rec_avg, f1_avg, _ = precision_recall_fscore_support(y_test_full, ensemble_preds_avg, average=None)
             
             layer_results = {
                 'classifier': clf_name,
                 'layer': layer_name,
                 'mean_cv_accuracy': mean_cv_accuracy,
                 'mean_test_accuracy': mean_test_accuracy,
+
                 'test_ensemble_vote_acc': ensemble_accuracy_vote,
+                'test_ensemble_vote_precision_control': prec_vote[0],
+                'test_ensemble_vote_recall_control': rec_vote[0],
+                'test_ensemble_vote_f1_control': f1_vote[0],
+                'test_ensemble_vote_precision_ad': prec_vote[1],
+                'test_ensemble_vote_recall_ad': rec_vote[1],
+                'test_ensemble_vote_f1_ad': f1_vote[1],
+
                 'test_ensemble_prob_avg_acc': ensemble_accuracy_avg,
+                'test_ensemble_prob_avg_precision_control': prec_avg[0],
+                'test_ensemble_prob_avg_recall_control': rec_avg[0],
+                'test_ensemble_prob_avg_f1_control': f1_avg[0],
+                'test_ensemble_prob_avg_precision_ad': prec_avg[1],
+                'test_ensemble_prob_avg_recall_ad': rec_avg[1],
+                'test_ensemble_prob_avg_f1_ad': f1_avg[1],
+
                 'cv_fold_accuracies': cv_fold_accuracies,       # Accuracy of every fold on val set
                 'test_fold_accuracies': test_fold_accuracies   # Accuracy of every fold on test set
             }
             all_results.append(layer_results)
 
     results_df = pd.DataFrame(all_results)
-    # Sort by the most meaningful metric: how well the ensemble performs on the test set
-    results_df = results_df.sort_values(by='test_ensemble_prob_avg_acc', ascending=False)
+    results_df = results_df.sort_values(by='test_ensemble_vote_acc', ascending=False)
     
     print("\nFinal Test Set Evaluation Summary (Sorted by Ensemble Accuracy)")
     print(results_df[[
@@ -164,7 +180,6 @@ def main():
         'test_ensemble_prob_avg_acc',
     ]].to_string(index=False))
     
-    # Save the detailed results to a CSV file
     output_dir = "results/classifier_evaluation"
     os.makedirs(output_dir, exist_ok=True)
     results_filename = os.path.join(output_dir, f"classifier_final_evaluation_{model_name_safe}.csv")
