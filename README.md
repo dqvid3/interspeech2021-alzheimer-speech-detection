@@ -39,6 +39,7 @@ This approach ensures the BERT classifier receives a rich set of alternative tra
 
 -   `/src`: Core Python source code (dataset, models, factories, training logic).
 -   `/scripts`: Executable scripts for running each step of the pipeline.
+-   `/notebooks`: Jupyter Notebooks for exploratory data analysis (EDA) and preliminary experiments.
 -   `config.yml`: Central configuration file for all hyperparameters and paths.
 -   `environment.yml`: Conda environment file for easy setup.
 
@@ -135,6 +136,15 @@ python -m scripts.train
 # Evaluates the trained model folds and produces an ensemble result
 python -m scripts.evaluate
 ```
+
+### 5. Outputs and Results
+
+After running the pipeline, the `results/` directory will be organized as follows:
+
+-   `results/transcripts/`: Generated ASR transcriptions (JSON format).
+-   `results/features/`: Extracted acoustic/linguistic features (cached tensors).
+-   `results/models/`: Trained model checkpoints and **performance metrics CSVs** (containing Accuracy, F1, etc.).
+-   `results/figures/`: Visualization plots (SVG format) for analysis and model comparison.
 
 ## Citation
 
