@@ -3,6 +3,7 @@ from transformers import BertTokenizer
 import matplotlib.pyplot as plt
 import seaborn as sns
 from tqdm import tqdm
+import os
 
 from src.utils import setup_experiment
 
@@ -72,8 +73,9 @@ def analyze_token_lengths(config, paths):
     plt.ylabel("Frequency")
     plt.legend()
     
-    plt.savefig("results/token_length_distribution_comparative.png")
-    print("Plot saved to 'results/token_length_distribution_comparative.png'")
+    os.makedirs("results/figures", exist_ok=True)
+    plt.savefig("results/figures/token_length_distribution_comparative.svg")
+    print("Plot saved to 'results/figures/token_length_distribution_comparative.svg'")
     
     plt.show()
 

@@ -180,7 +180,7 @@ def main():
         'test_ensemble_prob_avg_acc',
     ]].to_string(index=False))
     
-    output_dir = "results/classifier_evaluation"
+    output_dir = "results/models"
     os.makedirs(output_dir, exist_ok=True)
     results_filename = os.path.join(output_dir, f"classifier_final_evaluation_{model_name_safe}.csv")
     results_df.to_csv(results_filename, index=False)
@@ -188,62 +188,75 @@ def main():
 
     results_df['layer_num'] = results_df['layer'].str.split('_').str[1].astype(int)
 
+    sns.set_style("white")
+    plt.rcParams['font.family'] = 'sans-serif'
+    fig, ax = plt.subplots(figsize=(14, 8))
+
+    # Define colors/styles for each classifier
+    # Same color for both metrics, different line styles
+    styles = {
+        'RandomForest': {
+            'color': 'darkgreen',
+            'label': 'RandomForest'
+        },
+        'SVM': {
+            'color': 'darkgoldenrod',
+            'label': 'SVM'
+        }
+    }
+
     for clf_name in results_df['classifier'].unique():
-        print(f"\nGenerating plot for: {clf_name}...")
+        print(f"\nAdding data to plot for: {clf_name}...")
         
         # Filter the DataFrame to get results only for the current classifier
         clf_df = results_df[results_df['classifier'] == clf_name].sort_values('layer_num').reset_index(drop=True)
         
-        sns.set_style("whitegrid")
-        plt.rcParams['font.family'] = 'sans-serif'
-        fig, ax = plt.subplots(figsize=(14, 8))
+        style = styles.get(clf_name, {'color': 'black', 'label': clf_name})
 
-        # Plot each accuracy metric for the current classifier
+        # Plot Mean CV Accuracy (Dashed line)
         ax.plot(
             clf_df['layer_num'], 
             clf_df['mean_cv_accuracy'], 
-            label='Mean CV Accuracy (on Validation Folds)', 
+            label=f"{style['label']} - Mean CV Accuracy", 
             marker='o', 
             linestyle='--',
-            color='green'
+            color=style['color']
         )
+        
+          Plot Ensemble Accuracy on Test Set (Solid line)
         ax.plot(
             clf_df['layer_num'], 
             clf_df['test_ensemble_vote_acc'], 
-            label='Ensemble Accuracy on Test Set (Majority Vote)', 
+            label=f"{style['label']} - Test Ensemble (Maj Vote)", 
             marker='s',
             linestyle='-',
-            color='blue'
-        )
-        ax.plot(
-            clf_df['layer_num'], 
-            clf_df['test_ensemble_prob_avg_acc'], 
-            label='Ensemble Accuracy on Test Set (Probability Avg)', 
-            marker='^',
-            linestyle='-',
-            color='red'
+            color=style['color']
         )
         
-        ax.set_title(f'{clf_name} Performance by Wav2Vec2 Layer\n(Acoustic Model: {model_name})', fontsize=16, fontweight='bold')
-        ax.set_xlabel("Wav2Vec2 Layer Number", fontsize=12)
-        ax.set_ylabel("Accuracy", fontsize=12)
-        ax.set_xticks(clf_df['layer_num'])
-        
-        # Adjust y-axis limits dynamically for the current classifier's data
-        min_acc = clf_df[['mean_cv_accuracy', 'test_ensemble_vote_acc', 'test_ensemble_prob_avg_acc']].min().min()
-        max_acc = clf_df[['mean_cv_accuracy', 'test_ensemble_vote_acc', 'test_ensemble_prob_avg_acc']].max().max()
-        ax.set_ylim(min_acc - 0.05, max_acc + 0.05)
+    ax.set_xlabel("transformer layer index", fontsize=12)
+    ax.set_ylabel("accuracy", fontsize=12)
+    
+    # Set x-ticks to be specific values: 0, 5, 10, 15, 20
+    # Ensure we cover the range of layers present
+    max_layer = results_df['layer_num'].max()
+    custom_ticks = [i for i in range(0, max_layer + 1, 5)]
+    ax.set_xticks(custom_ticks)
+    
+    # Adjust y-axis limits dynamically based on all data
+    min_acc = results_df[['mean_cv_accuracy', 'test_ensemble_vote_acc']].min().min()
+    max_acc = results_df[['mean_cv_accuracy', 'test_ensemble_vote_acc']].max().max()
+    ax.set_ylim(min_acc - 0.05, max_acc + 0.05)
 
-        ax.legend(fontsize=11)
-        fig.tight_layout()
+    ax.legend(fontsize=11)
+    fig.tight_layout()
 
-        plot_dir = os.path.join(output_dir, "plots")
-        os.makedirs(plot_dir, exist_ok=True)
-        
-        plot_filename = os.path.join(plot_dir, f"{clf_name}_layer_performance_{model_name_safe}.png")
-        plt.savefig(plot_filename, dpi=300)
-        
-        print(f"Plot saved successfully to: '{plot_filename}'")
+    plot_dir = "results/figures"
+    os.makedirs(plot_dir, exist_ok=True)
+    
+    plot_filename = os.path.join(plot_dir, f"combined_layer_performance_{model_name_safe}.svg")
+    plt.savefig(plot_filename, dpi=300)
+    
+    print(f"Combined plot saved successfully to: '{plot_filename}'")
 
 if __name__ == "__main__":
     main()
