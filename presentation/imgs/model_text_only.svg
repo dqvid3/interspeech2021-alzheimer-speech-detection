@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="206pt" height="301pt" viewBox="0.00 0.00 206.00 301.00">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 296.8)">
+<title>ADBERT_TextOnly_Base</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-296.8 202,-296.8 202,4 -4,4"/>
+<g id="clust1" class="cluster">
+<title>cluster_inputs</title>
+<polygon fill="none" stroke="black" stroke-dasharray="5,2" points="8,-208 8,-284.8 190,-284.8 190,-208 8,-208"/>
+<text xml:space="preserve" text-anchor="middle" x="99" y="-268.2" font-family="Times,serif" font-size="14.00">Inputs</text>
+</g>
+<!-- input_ids -->
+<g id="node1" class="node">
+<title>input_ids</title>
+<path fill="#e0e0e0" stroke="black" d="M64.01,-252C64.01,-252 27.99,-252 27.99,-252 21.99,-252 15.99,-246 15.99,-240 15.99,-240 15.99,-228 15.99,-228 15.99,-222 21.99,-216 27.99,-216 27.99,-216 64.01,-216 64.01,-216 70.01,-216 76.01,-222 76.01,-228 76.01,-228 76.01,-240 76.01,-240 76.01,-246 70.01,-252 64.01,-252"/>
+<text xml:space="preserve" text-anchor="middle" x="46" y="-230.7" font-family="Arial" font-size="11.00">Input IDs</text>
+</g>
+<!-- bert -->
+<g id="node3" class="node">
+<title>bert</title>
+<path fill="#add8e6" stroke="black" d="M116.73,-180C116.73,-180 67.27,-180 67.27,-180 61.27,-180 55.27,-174 55.27,-168 55.27,-168 55.27,-156 55.27,-156 55.27,-150 61.27,-144 67.27,-144 67.27,-144 116.73,-144 116.73,-144 122.73,-144 128.73,-150 128.73,-156 128.73,-156 128.73,-168 128.73,-168 128.73,-174 122.73,-180 116.73,-180"/>
+<text xml:space="preserve" text-anchor="middle" x="92" y="-165.3" font-family="Arial" font-size="11.00">BERT Base</text>
+<text xml:space="preserve" text-anchor="middle" x="92" y="-152.1" font-family="Arial" font-size="11.00">(12 Layers)</text>
+</g>
+<!-- input_ids&#45;&gt;bert -->
+<g id="edge1" class="edge">
+<title>input_ids-&gt;bert</title>
+<path fill="none" stroke="black" d="M57.37,-215.7C62.55,-207.81 68.8,-198.3 74.56,-189.55"/>
+<polygon fill="black" stroke="black" points="77.36,-191.65 79.93,-181.37 71.51,-187.8 77.36,-191.65"/>
+</g>
+<!-- att_mask -->
+<g id="node2" class="node">
+<title>att_mask</title>
+<path fill="#e0e0e0" stroke="black" d="M170.38,-252C170.38,-252 105.62,-252 105.62,-252 99.62,-252 93.62,-246 93.62,-240 93.62,-240 93.62,-228 93.62,-228 93.62,-222 99.62,-216 105.62,-216 105.62,-216 170.38,-216 170.38,-216 176.38,-216 182.38,-222 182.38,-228 182.38,-228 182.38,-240 182.38,-240 182.38,-246 176.38,-252 170.38,-252"/>
+<text xml:space="preserve" text-anchor="middle" x="138" y="-230.7" font-family="Arial" font-size="11.00">Attention Mask</text>
+</g>
+<!-- att_mask&#45;&gt;bert -->
+<g id="edge2" class="edge">
+<title>att_mask-&gt;bert</title>
+<path fill="none" stroke="black" d="M126.63,-215.7C121.45,-207.81 115.2,-198.3 109.44,-189.55"/>
+<polygon fill="black" stroke="black" points="112.49,-187.8 104.07,-181.37 106.64,-191.65 112.49,-187.8"/>
+</g>
+<!-- last_cls -->
+<g id="node4" class="node">
+<title>last_cls</title>
+<path fill="#b0e0e6" stroke="black" d="M124.69,-108C124.69,-108 59.31,-108 59.31,-108 53.31,-108 47.31,-102 47.31,-96 47.31,-96 47.31,-84 47.31,-84 47.31,-78 53.31,-72 59.31,-72 59.31,-72 124.69,-72 124.69,-72 130.69,-72 136.69,-78 136.69,-84 136.69,-84 136.69,-96 136.69,-96 136.69,-102 130.69,-108 124.69,-108"/>
+<text xml:space="preserve" text-anchor="middle" x="92" y="-93.3" font-family="Arial" font-size="11.00">Layer 12 [CLS]</text>
+<text xml:space="preserve" text-anchor="middle" x="92" y="-80.1" font-family="Arial" font-size="11.00">(size: 768)</text>
+</g>
+<!-- bert&#45;&gt;last_cls -->
+<g id="edge3" class="edge">
+<title>bert-&gt;last_cls</title>
+<path fill="none" stroke="black" d="M92,-143.7C92,-136.41 92,-127.73 92,-119.54"/>
+<polygon fill="black" stroke="black" points="95.5,-119.62 92,-109.62 88.5,-119.62 95.5,-119.62"/>
+</g>
+<!-- classifier -->
+<g id="node5" class="node">
+<title>classifier</title>
+<path fill="#ffdab9" stroke="black" d="M112,-36C112,-36 72,-36 72,-36 66,-36 60,-30 60,-24 60,-24 60,-12 60,-12 60,-6 66,0 72,0 72,0 112,0 112,0 118,0 124,-6 124,-12 124,-12 124,-24 124,-24 124,-30 118,-36 112,-36"/>
+<text xml:space="preserve" text-anchor="middle" x="92" y="-21.3" font-family="Arial" font-size="11.00">Linear</text>
+<text xml:space="preserve" text-anchor="middle" x="92" y="-8.1" font-family="Arial" font-size="11.00">(768 -&gt; 2)</text>
+</g>
+<!-- last_cls&#45;&gt;classifier -->
+<g id="edge4" class="edge">
+<title>last_cls-&gt;classifier</title>
+<path fill="none" stroke="black" d="M92,-71.7C92,-64.41 92,-55.73 92,-47.54"/>
+<polygon fill="black" stroke="black" points="95.5,-47.62 92,-37.62 88.5,-47.62 95.5,-47.62"/>
+</g>
+</g>
+</svg>

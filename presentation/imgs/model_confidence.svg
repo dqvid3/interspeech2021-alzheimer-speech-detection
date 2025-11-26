@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="450pt" height="445pt" viewBox="0.00 0.00 450.00 445.00">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 440.8)">
+<title>ADBERT_Confidence_Large</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-440.8 445.87,-440.8 445.87,4 -4,4"/>
+<g id="clust1" class="cluster">
+<title>cluster_inputs</title>
+<polygon fill="none" stroke="black" stroke-dasharray="5,2" points="18.87,-280 18.87,-428.8 200.87,-428.8 200.87,-280 18.87,-280"/>
+<text xml:space="preserve" text-anchor="middle" x="109.87" y="-412.2" font-family="Times,serif" font-size="14.00">Inputs</text>
+</g>
+<g id="clust2" class="cluster">
+<title>cluster_bert_extract</title>
+<polygon fill="none" stroke="black" stroke-dasharray="1,5" points="113.87,-195.2 113.87,-272 433.87,-272 433.87,-195.2 113.87,-195.2"/>
+<text xml:space="preserve" text-anchor="middle" x="273.87" y="-255.4" font-family="Times,serif" font-size="14.00">Last 3 Layers Extraction</text>
+</g>
+<!-- input_ids -->
+<g id="node1" class="node">
+<title>input_ids</title>
+<path fill="#e0e0e0" stroke="black" d="M74.88,-396C74.88,-396 38.86,-396 38.86,-396 32.86,-396 26.86,-390 26.86,-384 26.86,-384 26.86,-372 26.86,-372 26.86,-366 32.86,-360 38.86,-360 38.86,-360 74.88,-360 74.88,-360 80.88,-360 86.88,-366 86.88,-372 86.88,-372 86.88,-384 86.88,-384 86.88,-390 80.88,-396 74.88,-396"/>
+<text xml:space="preserve" text-anchor="middle" x="56.87" y="-374.7" font-family="Arial" font-size="11.00">Input IDs</text>
+</g>
+<!-- bert -->
+<g id="node4" class="node">
+<title>bert</title>
+<path fill="#add8e6" stroke="black" d="M273.14,-324C273.14,-324 220.61,-324 220.61,-324 214.61,-324 208.61,-318 208.61,-312 208.61,-312 208.61,-300 208.61,-300 208.61,-294 214.61,-288 220.61,-288 220.61,-288 273.14,-288 273.14,-288 279.14,-288 285.14,-294 285.14,-300 285.14,-300 285.14,-312 285.14,-312 285.14,-318 279.14,-324 273.14,-324"/>
+<text xml:space="preserve" text-anchor="middle" x="246.87" y="-309.3" font-family="Arial" font-size="11.00">BERT Large</text>
+<text xml:space="preserve" text-anchor="middle" x="246.87" y="-296.1" font-family="Arial" font-size="11.00">(24 Layers)</text>
+</g>
+<!-- input_ids&#45;&gt;bert -->
+<g id="edge1" class="edge">
+<title>input_ids-&gt;bert</title>
+<path fill="none" stroke="black" d="M86.99,-363.54C89.98,-362.31 92.98,-361.11 95.87,-360 140.09,-343.1 154.86,-341.7 197.87,-326.49"/>
+<polygon fill="black" stroke="black" points="198.82,-329.87 207.04,-323.18 196.44,-323.28 198.82,-329.87"/>
+</g>
+<!-- att_mask -->
+<g id="node2" class="node">
+<title>att_mask</title>
+<path fill="#e0e0e0" stroke="black" d="M181.25,-396C181.25,-396 116.5,-396 116.5,-396 110.5,-396 104.5,-390 104.5,-384 104.5,-384 104.5,-372 104.5,-372 104.5,-366 110.5,-360 116.5,-360 116.5,-360 181.25,-360 181.25,-360 187.25,-360 193.25,-366 193.25,-372 193.25,-372 193.25,-384 193.25,-384 193.25,-390 187.25,-396 181.25,-396"/>
+<text xml:space="preserve" text-anchor="middle" x="148.87" y="-374.7" font-family="Arial" font-size="11.00">Attention Mask</text>
+</g>
+<!-- att_mask&#45;&gt;bert -->
+<g id="edge2" class="edge">
+<title>att_mask-&gt;bert</title>
+<path fill="none" stroke="black" d="M173.35,-359.52C185.49,-350.85 200.32,-340.25 213.49,-330.85"/>
+<polygon fill="black" stroke="black" points="215.37,-333.8 221.48,-325.14 211.31,-328.1 215.37,-333.8"/>
+</g>
+<!-- conf_score -->
+<g id="node3" class="node">
+<title>conf_score</title>
+<path fill="#98fb98" stroke="black" d="M118.59,-324C118.59,-324 39.15,-324 39.15,-324 33.15,-324 27.15,-318 27.15,-312 27.15,-312 27.15,-300 27.15,-300 27.15,-294 33.15,-288 39.15,-288 39.15,-288 118.59,-288 118.59,-288 124.59,-288 130.59,-294 130.59,-300 130.59,-300 130.59,-312 130.59,-312 130.59,-318 124.59,-324 118.59,-324"/>
+<text xml:space="preserve" text-anchor="middle" x="78.87" y="-309.3" font-family="Arial" font-size="11.00">Confidence Score</text>
+<text xml:space="preserve" text-anchor="middle" x="78.87" y="-296.1" font-family="Arial" font-size="11.00">(Scalar)</text>
+</g>
+<!-- conf_proc -->
+<g id="node8" class="node">
+<title>conf_proc</title>
+<path fill="#90ee90" stroke="black" d="M91.75,-239.2C91.75,-239.2 12,-239.2 12,-239.2 6,-239.2 0,-233.2 0,-227.2 0,-227.2 0,-215.2 0,-215.2 0,-209.2 6,-203.2 12,-203.2 12,-203.2 91.75,-203.2 91.75,-203.2 97.75,-203.2 103.75,-209.2 103.75,-215.2 103.75,-215.2 103.75,-227.2 103.75,-227.2 103.75,-233.2 97.75,-239.2 91.75,-239.2"/>
+<text xml:space="preserve" text-anchor="middle" x="51.87" y="-224.5" font-family="Arial" font-size="11.00">Linear (1 -&gt; 1024)</text>
+<text xml:space="preserve" text-anchor="middle" x="51.87" y="-211.3" font-family="Arial" font-size="11.00">+ ReLU</text>
+</g>
+<!-- conf_score&#45;&gt;conf_proc -->
+<g id="edge6" class="edge">
+<title>conf_score-&gt;conf_proc</title>
+<path fill="none" stroke="black" d="M73.28,-287.84C69.76,-277.04 65.12,-262.83 61.07,-250.39"/>
+<polygon fill="black" stroke="black" points="64.45,-249.48 58.02,-241.06 57.8,-251.65 64.45,-249.48"/>
+</g>
+<!-- l24 -->
+<g id="node5" class="node">
+<title>l24</title>
+<path fill="#b0e0e6" stroke="black" d="M199.56,-239.2C199.56,-239.2 134.19,-239.2 134.19,-239.2 128.19,-239.2 122.19,-233.2 122.19,-227.2 122.19,-227.2 122.19,-215.2 122.19,-215.2 122.19,-209.2 128.19,-203.2 134.19,-203.2 134.19,-203.2 199.56,-203.2 199.56,-203.2 205.56,-203.2 211.56,-209.2 211.56,-215.2 211.56,-215.2 211.56,-227.2 211.56,-227.2 211.56,-233.2 205.56,-239.2 199.56,-239.2"/>
+<text xml:space="preserve" text-anchor="middle" x="166.87" y="-224.5" font-family="Arial" font-size="11.00">Layer 24 [CLS]</text>
+<text xml:space="preserve" text-anchor="middle" x="166.87" y="-211.3" font-family="Arial" font-size="11.00">(1024)</text>
+</g>
+<!-- bert&#45;&gt;l24 -->
+<g id="edge3" class="edge">
+<title>bert-&gt;l24</title>
+<path fill="none" stroke="black" d="M230.3,-287.84C219.11,-276.26 204.15,-260.78 191.57,-247.76"/>
+<polygon fill="black" stroke="black" points="194.22,-245.47 184.76,-240.71 189.19,-250.33 194.22,-245.47"/>
+</g>
+<!-- l23 -->
+<g id="node6" class="node">
+<title>l23</title>
+<path fill="#b0e0e6" stroke="black" d="M306.56,-239.2C306.56,-239.2 241.19,-239.2 241.19,-239.2 235.19,-239.2 229.19,-233.2 229.19,-227.2 229.19,-227.2 229.19,-215.2 229.19,-215.2 229.19,-209.2 235.19,-203.2 241.19,-203.2 241.19,-203.2 306.56,-203.2 306.56,-203.2 312.56,-203.2 318.56,-209.2 318.56,-215.2 318.56,-215.2 318.56,-227.2 318.56,-227.2 318.56,-233.2 312.56,-239.2 306.56,-239.2"/>
+<text xml:space="preserve" text-anchor="middle" x="273.87" y="-224.5" font-family="Arial" font-size="11.00">Layer 23 [CLS]</text>
+<text xml:space="preserve" text-anchor="middle" x="273.87" y="-211.3" font-family="Arial" font-size="11.00">(1024)</text>
+</g>
+<!-- bert&#45;&gt;l23 -->
+<g id="edge4" class="edge">
+<title>bert-&gt;l23</title>
+<path fill="none" stroke="black" d="M252.47,-287.84C255.99,-277.04 260.63,-262.83 264.68,-250.39"/>
+<polygon fill="black" stroke="black" points="267.95,-251.65 267.72,-241.06 261.3,-249.48 267.95,-251.65"/>
+</g>
+<!-- l22 -->
+<g id="node7" class="node">
+<title>l22</title>
+<path fill="#b0e0e6" stroke="black" d="M413.56,-239.2C413.56,-239.2 348.19,-239.2 348.19,-239.2 342.19,-239.2 336.19,-233.2 336.19,-227.2 336.19,-227.2 336.19,-215.2 336.19,-215.2 336.19,-209.2 342.19,-203.2 348.19,-203.2 348.19,-203.2 413.56,-203.2 413.56,-203.2 419.56,-203.2 425.56,-209.2 425.56,-215.2 425.56,-215.2 425.56,-227.2 425.56,-227.2 425.56,-233.2 419.56,-239.2 413.56,-239.2"/>
+<text xml:space="preserve" text-anchor="middle" x="380.87" y="-224.5" font-family="Arial" font-size="11.00">Layer 22 [CLS]</text>
+<text xml:space="preserve" text-anchor="middle" x="380.87" y="-211.3" font-family="Arial" font-size="11.00">(1024)</text>
+</g>
+<!-- bert&#45;&gt;l22 -->
+<g id="edge5" class="edge">
+<title>bert-&gt;l22</title>
+<path fill="none" stroke="black" d="M285.39,-292.62C299.33,-287.3 314.84,-280.37 327.87,-272 338.5,-265.18 348.92,-256.08 357.66,-247.53"/>
+<polygon fill="black" stroke="black" points="359.9,-250.25 364.43,-240.68 354.91,-245.34 359.9,-250.25"/>
+</g>
+<!-- concat -->
+<g id="node9" class="node">
+<title>concat</title>
+<path fill="#ffe4b5" stroke="black" d="M258.65,-167.2C258.65,-167.2 181.1,-167.2 181.1,-167.2 175.1,-167.2 166.97,-161.59 164.84,-155.98 164.84,-155.98 137.19,-83.22 137.19,-83.22 135.06,-77.61 138.93,-72 144.93,-72 144.93,-72 294.82,-72 294.82,-72 300.82,-72 304.68,-77.61 302.55,-83.22 302.55,-83.22 274.91,-155.98 274.91,-155.98 272.78,-161.59 264.65,-167.2 258.65,-167.2"/>
+<text xml:space="preserve" text-anchor="middle" x="219.87" y="-129.5" font-family="Arial" font-size="11.00">Concatenation</text>
+<text xml:space="preserve" text-anchor="middle" x="219.87" y="-116.3" font-family="Arial" font-size="11.00">(Text + Conf)</text>
+<text xml:space="preserve" text-anchor="middle" x="219.87" y="-103.1" font-family="Arial" font-size="11.00">Size: 4096</text>
+</g>
+<!-- l24&#45;&gt;concat -->
+<g id="edge7" class="edge">
+<title>l24-&gt;concat</title>
+<path fill="none" stroke="black" d="M176.11,-202.85C179.98,-195.57 184.73,-186.64 189.66,-177.38"/>
+<polygon fill="black" stroke="black" points="192.72,-179.08 194.33,-168.61 186.54,-175.79 192.72,-179.08"/>
+</g>
+<!-- l23&#45;&gt;concat -->
+<g id="edge8" class="edge">
+<title>l23-&gt;concat</title>
+<path fill="none" stroke="black" d="M264.47,-202.85C260.52,-195.57 255.68,-186.64 250.66,-177.38"/>
+<polygon fill="black" stroke="black" points="253.74,-175.73 245.9,-168.6 247.59,-179.06 253.74,-175.73"/>
+</g>
+<!-- l22&#45;&gt;concat -->
+<g id="edge9" class="edge">
+<title>l22-&gt;concat</title>
+<path fill="none" stroke="black" d="M352.83,-202.85C334.14,-191.29 308.78,-175.6 285.21,-161.02"/>
+<polygon fill="black" stroke="black" points="287.22,-158.15 276.88,-155.86 283.54,-164.1 287.22,-158.15"/>
+</g>
+<!-- conf_proc&#45;&gt;concat -->
+<g id="edge10" class="edge">
+<title>conf_proc-&gt;concat</title>
+<path fill="none" stroke="black" d="M81.14,-202.85C101.22,-190.94 128.7,-174.65 153.91,-159.71"/>
+<polygon fill="black" stroke="black" points="155.68,-162.73 162.5,-154.62 152.11,-156.7 155.68,-162.73"/>
+</g>
+<!-- classifier -->
+<g id="node10" class="node">
+<title>classifier</title>
+<path fill="#ffdab9" stroke="black" d="M242.93,-36C242.93,-36 196.82,-36 196.82,-36 190.82,-36 184.82,-30 184.82,-24 184.82,-24 184.82,-12 184.82,-12 184.82,-6 190.82,0 196.82,0 196.82,0 242.93,0 242.93,0 248.93,0 254.93,-6 254.93,-12 254.93,-12 254.93,-24 254.93,-24 254.93,-30 248.93,-36 242.93,-36"/>
+<text xml:space="preserve" text-anchor="middle" x="219.87" y="-21.3" font-family="Arial" font-size="11.00">Linear</text>
+<text xml:space="preserve" text-anchor="middle" x="219.87" y="-8.1" font-family="Arial" font-size="11.00">(4096 -&gt; 2)</text>
+</g>
+<!-- concat&#45;&gt;classifier -->
+<g id="edge11" class="edge">
+<title>concat-&gt;classifier</title>
+<path fill="none" stroke="black" d="M219.87,-71.72C219.87,-63.47 219.87,-55.12 219.87,-47.57"/>
+<polygon fill="black" stroke="black" points="223.37,-47.65 219.87,-37.65 216.37,-47.65 223.37,-47.65"/>
+</g>
+</g>
+</svg>

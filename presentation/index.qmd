@@ -1,0 +1,841 @@
+---
+title: "Rilevamento della Demenza di Alzheimer tramite Analisi del Parlato"
+subtitle: |
+  Replicazione e Modernizzazione di Pan et al. (2021)
+  <br><br>
+  <a href="https://github.com/dqvid3/interspeech2021-alzheimer-speech-detection" target="_blank" title="Vai al codice su GitHub" style="text-decoration: none; color: #333; opacity: 0.7; transition: opacity 0.3s;">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" height="40" style="fill: currentColor;">
+      <path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.6-5.2-1.6-1.6-3.9-2.3-5.3-1zM150.2 384.6c-1 1.6-2.6.2-3.6-1.5-1-1.8-1.3-4-.3-5.7 1-1.6 2.6-.2 3.6 1.5 1 1.8 1.3 4 .3 5.7zM180.3 394c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-101.8-13.8c-1.3.3-2.9 3-2.6 6.2.3 2.6 2.6 4.3 3.9 4 1.3-.3 2.9-3 2.6-6.2-.3-2.6-2.6-4.3-3.9-4z"/>
+    </svg>
+  </a>
+author: "Davide Bonura"
+institute: "Università degli Studi di Palermo"
+date: today
+format: 
+  revealjs:
+    theme: white
+    transition: slide
+    slide-number: true
+    preview-links: auto
+    logo: "imgs/unipa-logo.png"
+    incremental: false
+    width: 1280
+    height: 720
+    bibliography: references.bib
+    csl: https://www.zotero.org/styles/ieee
+    lightbox: true
+    center: true
+    #embed-resources: true
+    #standalone: true
+---
+## Scenario Epidemiologico Globale
+
+Secondo *Alzheimer’s Disease International*, i dati delineano un'emergenza sanitaria in rapida crescita.
+
+::: columns
+::: {.column width="50%" .fragment .fade-in-then-semi-out}
+### Prevalenza in Esplosione
+<div style="font-size: 0.9em;">
+- **55+ milioni** di persone affette oggi nel mondo.
+- **139 milioni** previsti entro il 2050.
+- **L'Alzheimer è la causa primaria:** rappresenta il **60-70%** di tutti i casi
+</div>
+
+:::
+
+::: {.column width="50%" .fragment}
+### Impatto Economico
+<div style="font-size: 0.9em;">
+- Costo globale (2019): **$1.3 trilioni**.
+- Previsione 2030: **$2.8 trilioni**.
+- Oltre il **60%** dei casi si trova in paesi a basso-medio reddito, dove le risorse sono limitate.
+</div>
+
+:::
+:::
+
+---
+
+## Lo Scenario Italiano
+
+In Italia, paese con una delle popolazioni più anziane, la situazione è critica (Dati ISS/ISTAT).
+
+::: columns
+::: {.column width="60%" .fragment .fade-in-then-semi-out}
+### I Numeri della Malattia
+<div style="font-size: 0.9em;">
+- **1.2 Milioni** di demenze diagnosticate (over 65).
+- **950.000** persone con *Mild Cognitive Impairment* (MCI).
+- **Gap di Genere (Prevalenza >65 anni):**
+  - Donne: **6.2%**.
+  - Uomini: **2.8%**.
+</div>
+
+:::
+
+::: {.column width="40%" .fragment}
+### Costi e Famiglie
+<div style="font-size: 0.9em;">
+- **23 Miliardi €** di costo annuo stimato.
+- **63% dei costi** ricade direttamente sulle famiglie.
+- **3 Milioni** di caregiver coinvolti nella gestione quotidiana.
+</div>
+
+:::
+:::
+---
+
+## Perché serve uno Screening Oggettivo?
+
+Oltre ai numeri, ci sono barriere culturali e cliniche che l'IA può aiutare a superare.
+
+::: columns
+::: {.column width="50%" .fragment .fade-in-then-semi-out}
+### Potenziale Preventivo
+<div style="font-size: 0.9em;">
+Circa il **45% dei casi** è legato a fattori modificabili (es. isolamento, ipoacusia, diabete). 
+
+*Rilevare i segni precocemente permette di intervenire su questi fattori e rallentare il decorso.*
+</div>
+
+:::
+
+::: {.column width="50%" .fragment}
+### Bias Cognitivi e Sociali
+<div style="font-size: 0.9em;">
+Secondo il *World Alzheimer Report 2024*:
+
+- L'**80%** della popolazione generale crede erroneamente che la demenza sia "normale invecchiamento".
+- Anche il **65%** degli operatori sanitari condivide in parte questo bias.
+</div>
+
+:::
+:::
+
+---
+
+## Limiti della Diagnosi Attuale
+
+Nonostante l'urgenza, gli strumenti clinici attuali non sono adatti allo screening di massa.
+
+::: columns
+::: {.column width="50%" .fragment .fade-in-then-semi-out}
+### Test Neuropsicologici
+<div style="font-size: 0.9em;">
+*(es. MMSE, MoCA)*
+- Richiedono clinici esperti e tempo (stress per il SSN).
+- Soggetti a bias culturali e di scolarizzazione.
+</div>
+
+:::
+
+::: {.column width="50%" .fragment}
+### Biomarcatori
+<div style="font-size: 0.9em;">
+*(es. MRI, CSF)*
+- **Invasivi**.
+- **Costosi** e non disponibili ovunque.
+</div>
+
+:::
+:::
+
+---
+
+##  Biomarcatori Vocali e Linguistici
+
+La letteratura scientifica identifica segnali che possono degradarsi precocemente:
+
+::: columns
+::: {.column width="50%" .fragment .fade-in-then-semi-out}
+### Acustici & Prosodici
+<div style="font-size: 0.9em;">
+- **Pause e Silenzi:** Aumento della frequenza e durata delle pause intra-frase [@rohanian21_interspeech].
+- **Disfluenze:** Riempitivi (uh, um), ripetizioni, autocorrezzioni.
+- **Qualità della Voce:** Variazioni di frequenza e ampiezza (Jitter/Shimmer).
+</div>
+
+:::
+
+::: {.column width="50%" .fragment}
+### Linguistici
+<div style="font-size: 0.9em;">
+- **Impoverimento Lessicale:** Ridotta diversità (*Type-Token Ratio* [@syed21_interspeech]) e uso di termini generici.
+- **Sintassi:** Semplificazione grammaticale ("telegraphic speech").
+- **Coerenza:** Perdita del filo logico nel discorso spontaneo.
+</div>
+
+:::
+:::
+
+---
+
+## Ostacoli nell'ASR
+
+L'uso di ASR standard su pazienti AD presenta tre ostacoli principali:
+
+::: {.incremental}
+
+1.  **Normalizzazione:** I sistemi moderni sono ottimizzati per "pulire" il parlato, rimuovendo esitazioni e pause [@rohanian21_interspeech].
+2.  **Perdita di Informazione Non-Semantica:** BERT lavora sul significato, ma ignora la prosodia e i silenzi [@zhu21e_interspeech].
+3.  **Bias dell'Intervistatore:** Le registrazioni includono il clinico. Alcuni studi mostrano che classificare l'intervistatore (che adatta il linguaggio al paziente) può dare risultati migliori del paziente stesso, introducendo bias [@pereztoro21_interspeech].
+
+:::
+
+---
+
+## Soluzioni ADReSSo 2021 
+
+Come gestire l'alto tasso di errore nelle trascrizioni automatiche?
+<br>
+
+<style>
+.reveal table { border-collapse: collapse; width: 100%; }
+.reveal table th { border-bottom: 2px solid #333; text-align: left; padding: 10px; }
+.reveal table td { border-bottom: 1px solid #ddd; padding: 10px; vertical-align: top; }
+</style>
+
+<table>
+<thead>
+  <tr>
+    <th width="20%">Approccio</th>
+    <th width="50%">Strategia</th>
+    <th width="30%">Paper di Riferimento</th>
+  </tr>
+</thead>
+<tbody>
+  <tr class="fragment">
+    <td><b>Pause-Aware</b></td>
+    <td>Forzare l'ASR a generare token di "silenzio" per preservare la prosodia nel testo.</td>
+    <td><i>WavBERT</i><br>Zhu et al. [@zhu21e_interspeech]</td>
+  </tr>
+  <tr class="fragment">
+    <td><b>Feature Fusion</b></td>
+    <td>Combinare feature acustiche (es. eGeMAPS) con il testo per compensare gli errori ASR.</td>
+    <td>Rohanian et al.<br>[@rohanian21_interspeech]</td>
+  </tr>
+  <tr class="fragment">
+    <td><b>Confidence-Aware</b></td>
+    <td><b>Ponderare l'importanza della trascrizione in base all'incertezza dell'ASR.</b></td>
+    <td><b>Pan et al.</b><br>[@pan21c_interspeech]</td>
+  </tr>
+</tbody>
+</table>
+
+---
+
+## Il Dataset: ADReSSo Challenge [@luz21_interspeech]
+
+Il corpus è composto da registrazioni del task **"Cookie Theft"**.
+
+::: columns
+::: {.column width="40%"}
+![](imgs/cookie-theft.png){width="100%"}
+:::
+
+::: {.column width="60%"}
+<div style="font-size: 0.9em;">
+Per evitare che il modello impari bias demografici invece che patologici, i gruppi sono stati bilanciati tramite **Propensity Score Matching**.
+
+|  | Gruppo AD | Gruppo CN |
+| :--- | :---: | :---: |
+| **Soggetti** | 122 | 115 |
+| **Età Media** | 69.4 (± 6.9) | 66.1 (± 6.3) |
+| **Genere (D/U)** | 65% / 35% | 65% / 35% |
+| **Durata Audio** | 65.7s (± 38.6) | 61.6s (± 26.9) |
+</div>
+
+:::
+:::
+
+## Analisi Esplorativa: Flusso e Ritmo
+
+*Il declino cognitivo impatta significativamente sulla pianificazione del discorso.*
+
+::: columns
+::: {.column width="50%" .fragment}
+![](imgs/wpm.svg){fig-align="center" width="80%"}
+<div style="font-size: 0.7em;">
+**Velocità dell'elocuzione**<br>
+I controlli **CN** parlano nettamente più veloce (**109** parole/min) rispetto ai pazienti **AD** (**85** parole/min).
+</div>
+
+:::
+
+::: {.column width="50%" .fragment}
+![](imgs/avg_pause_duration.svg){fig-align="center" width="80%"}
+<div style="font-size: 0.7em;">
+**Durata delle Pause**<br>
+I pazienti **AD** fanno pause più lunghe (**1.76s**) rispetto ai **CN** (**1.27s**), sintomo di difficoltà nel recupero lessicale.
+</div>
+
+:::
+:::
+
+---
+
+## Analisi Esplorativa: Contenuto Lessicale
+
+*La quantità di informazione si riduce, ma la complessità lessicale rimane simile.*
+
+::: columns
+::: {.column width="50%" .fragment}
+![](imgs/word_count.svg){fig-align="center" width="80%"}
+<div style="font-size: 0.7em;">
+**Conteggio Parole**<br>
+I pazienti **AD** producono descrizioni più brevi (**112** parole) rispetto ai soggetti sani **CN** (**123** parole).
+</div>
+
+:::
+::: {.column width="50%" .fragment}
+![](imgs/mattr.svg){fig-align="center" width="80%"}
+<div style="font-size: 0.7em;">
+**Ricchezza Lessicale (MATTR)**<br>
+Differenza minima tra **AD (0.71)** e **CN (0.72)**. In questo stadio della malattia il vocabolario è ancora preservato.
+</div>
+
+:::
+:::
+
+---
+
+## Incertezza dell'ASR come Feature Diagnostica
+*Quanto è "sicuro" il modello di trascrizione di aver capito le parole?*
+
+::: columns
+::: {.column width="70%"}
+![](imgs/confidence.svg){fig-align="center" width="90%"}
+:::
+::: {.column width="30%"}
+<div style="font-size: 0.7em; margin-top: 50px;">
+**Confidence Score Medio:**
+
+- **CN: 0.84**
+- **AD: 0.81**
+
+<br>
+*Il calo di confidenza nel gruppo AD indica che il parlato patologico è intrinsecamente più difficile da decodificare per l'IA*
+</div>
+
+:::
+:::
+
+---
+
+## Pattern di Esitazione: "UH" vs "UM"
+
+*Analisi dei riempitivi vocali rilevati automaticamente.*
+
+::: columns
+::: {.column width="50%" .fragment}
+![](imgs/uh_count.svg){fig-align="center" width="80%"}
+<div style="font-size: 0.7em;">
+**Esitazione Breve**<br>
+Aumenta nei pazienti AD (**3.3** vs 2.3). Segnala incertezza momentanea.
+</div>
+
+:::
+::: {.column width="50%" .fragment}
+![](imgs/um_count.svg){fig-align="center" width="80%"}
+<div style="font-size: 0.7em;">
+**Pianificazione**<br>
+Crolla nei pazienti AD (**0.4** vs 1.3). Manca la pianificazione strutturata del discorso.
+</div>
+
+:::
+:::
+
+---
+
+## Panoramica Modelli [@pan21c_interspeech]
+
+Il paper propone un approccio progressivo basato su **Wav2Vec2** e **BERT**.
+
+::: {.incremental}
+
+1.  **Modello 1 (Acustico):** Feature estratte dai layer di Wav2Vec2 + SVM/TreeBagger.
+2.  **Modello 2 (Linguistico):** Trascrizione ASR $\rightarrow$ BERT fine-tuning.
+3.  **Modello 3 (Fusione):** Combinazione multimodale (Audio + Testo).
+4.  **Modelli 4 (Confidence-aware):** BERT pesato dall'incertezza dell'ASR.
+
+:::
+
+---
+
+## Architettura Modello 1: Feature Acustiche
+
+Utilizziamo Wav2Vec2 come feature extractor, congelando i pesi della rete neurale.
+
+![](imgs/model_acoustic.svg){.r-stretch fig-align="center"}
+
+<br>
+
+<div style="font-size: 0.6em; text-align: center;">
+*Mean Pooling: Le sequenze temporali estratte dal Transformer vengono mediate per ottenere un embedding statico compatibile con classificatori tradizionali.*
+</div>
+
+---
+
+## Analisi per Layer
+
+Confronto tra i nostri risultati e il trend riportato nel paper originale.
+
+::: columns
+::: {.column width="50%"}
+![](imgs/paper_layer_plot.png){height="500px" fig-align="center"}
+<div style="font-size: 0.6em; text-align: center;">**Pan et al.**</div>
+:::
+
+::: {.column width="50%"}
+![](imgs/combined_layer_performance_facebook_wav2vec2-large-960h-lv60-self.svg){height="500px" fig-align="center"}
+<div style="font-size: 0.6em; text-align: center;">**Replica**</div>
+:::
+:::
+
+---
+
+## Architettura Modello 2: Solo Testo
+
+Il modello base per l'analisi linguistica.
+
+![](imgs/model_text_only.svg){.r-stretch fig-align="center"}
+
+<br>
+
+<div style="font-size: 0.6em; text-align: center;">
+*Il classificatore BERT viene fine-tunato sulla migliore trascrizione prodotta dall'ASR.*
+</div>
+
+---
+
+## Architettura Modello 3: Fusione Multimodale
+
+Combina le rappresentazioni latenti dell'audio e del testo in un unico spazio vettoriale.
+
+![](imgs/model_fusion.svg){.r-stretch fig-align="center"}
+
+<br>
+
+<div style="font-size: 0.6em; text-align: center;">
+*L'idea chiave è che l'acustica può compensare gli errori di trascrizione dell'ASR e viceversa.*
+</div>
+
+---
+
+## Architettura Modello 4: Confidence-aware
+
+Sfrutta l'incertezza dell'ASR per migliorare la robustezza del modello linguistico.
+
+![](imgs/model_confidence.svg){.r-stretch fig-align="center"}
+
+<br>
+
+<div style="font-size: 0.6em; text-align: center;">
+*Esporre il classificatore a diverse varianti di trascrizione (pesate dalla confidenza) lo rende intrinsecamente più **robusto** agli errori dell'ASR.*
+</div>
+
+---
+
+## Pipeline ASR
+
+Replichiamo l'ASR con strategie diverse dovute alla mancanza dei dataset privati utilizzati.
+
+<table>
+<thead>
+  <tr>
+    <th width="10%"></th>
+    <th width="45%">Paper Originale (Pan et al.)</th>
+    <th width="45%">Re-Implementazione</th>
+  </tr>
+</thead>
+<tbody>
+  <tr class="fragment">
+    <td><b>ASR 1</b></td>
+    <td><code>wav2vec2-large-960h-lv60</code><br>+ Fine-tuning su dataset privato <i>IVA</i> (conversazioni cliniche).</td>
+    <td><code>wav2vec2-large-960h-lv60</code> + <code>KenLM</code><br>Uso Zero-shot (senza fine-tuning specifico sul dominio).</td>
+  </tr>
+  <tr class="fragment">
+    <td><b>ASR 2</b></td>
+    <td><code>Kaldi TDNN</code><br>Pre-train su LibriSpeech + Transfer Learning su dataset esterni (AMI, Sheffield-CT).</td>
+    <td><code>whisper-large-v3</code><br>Uso Zero-shot.</td>
+  </tr>
+</tbody>
+</table>
+
+---
+
+## Esplorazione del Corpus
+
+```{python}
+#| echo: false
+#| output: asis
+import glob
+import os
+import base64
+import json
+
+AUDIO_ROOT = "../data/ADReSSo21-diagnosis-train/ADReSSo21/diagnosis/train/audio"
+TRANSCRIPTS_ROOT = "../results/transcripts"
+
+if os.path.exists(AUDIO_ROOT) and os.path.isdir(AUDIO_ROOT):
+  def get_subject_data(class_folder, label_text, color):
+    audio_search_path = os.path.join(AUDIO_ROOT, class_folder)
+    audio_files = glob.glob(os.path.join(audio_search_path, "*.wav"))
+    
+    file_path = audio_files[0] 
+    filename = os.path.basename(file_path)
+    file_id = os.path.splitext(filename)[0]
+
+    with open(file_path, 'rb') as f:
+      b64 = base64.b64encode(f.read()).decode('utf-8')
+    src = f"data:audio/wav;base64,{b64}"
+
+    transcripts = {}
+
+    for asr_type in os.listdir(TRANSCRIPTS_ROOT):
+      asr_type_path = os.path.join(TRANSCRIPTS_ROOT, asr_type)
+
+      for model_name in os.listdir(asr_type_path):
+        model_path = os.path.join(asr_type_path, model_name)
+
+        target_dir = os.path.join(model_path, "train", class_folder)
+        json_path = os.path.join(target_dir, f"{file_id}.json")
+
+        with open(json_path, 'r', encoding='utf-8') as f:
+          data = json.load(f)
+          text = data[0].get('text', '')
+          transcripts[model_name] = text
+
+    return {
+      "src": src,
+      "label": label_text,
+      "color": color,
+      "transcripts": transcripts, 
+      "filename": filename
+    }
+
+  data_ad = get_subject_data("ad", "Paziente Alzheimer (AD)", "#dc3545")
+  data_cn = get_subject_data("cn", "Controllo Sano (CN)", "#28a745")
+  js_data = json.dumps({"ad": data_ad, "cn": data_cn})
+
+  html = f"""
+  <style>
+    .player-wrapper {{ text-align: center; padding: 20px; border: 1px solid #eee; border-radius: 8px; background: #fafafa; }}
+    
+    .switch-btn {{ padding: 8px 16px; font-size: 14px; border: none; border-radius: 4px; cursor: pointer; opacity: 0.6; transition: 0.3s; margin: 0 5px; color: white; }}
+    .switch-btn:hover, .switch-btn.active {{ opacity: 1; font-weight: bold; transform: scale(1.05); }}
+    
+    .play-button {{ font-size: 70px; cursor: pointer; transition: transform 0.1s; user-select: none; margin: 15px 0; display: inline-block; }}
+    .play-button:active {{ transform: scale(0.95); }}
+    .paused {{ opacity: 0.5; filter: grayscale(100%); }}
+    
+    .control-row {{ display: flex; justify-content: center; align-items: center; gap: 10px; }}
+    
+    .model-select {{ padding: 5px; border-radius: 4px; border: 1px solid #ccc; font-size: 20px; max-width: 300px; }}
+    
+    .transcript-box {{ 
+      background-color: #fff; border: 1px solid #ddd; border-radius: 5px; padding: 15px; 
+      text-align: left; font-family: monospace; white-space: pre-wrap; font-size: 0.9em;
+      max-height: 200px; overflow-y: auto; box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+    }}
+  </style>
+
+  <div class="player-wrapper">
+  <div style="margin-bottom: 15px;">
+  <button onclick="switchSubject('cn')" class="switch-btn active" id="btn-cn" style="background-color: #28a745;">🟢 Controllo Sano</button>
+  <button onclick="switchSubject('ad')" class="switch-btn" id="btn-ad" style="background-color: #dc3545;">🔴 Paziente AD</button>
+  </div>
+
+  <div>
+  <h3 id="current-label" style="margin:0; color: #28a745;">Controllo Sano (CN)</h3>
+  <small id="current-file" style="color:#666; font-family:monospace;">...</small>
+  </div>
+
+  <div id="emoji-play" class="play-button paused">▶️</div>
+
+  <div class="control-row">
+  <span style="font-weight: bold; color: #555;">Modello ASR:</span>
+  <select id="asr-select" class="model-select" onchange="updateTranscriptText()"></select>
+  </div>
+
+  <div id="text-display" class="transcript-box">Caricamento...</div>
+  </div>
+
+  <audio id="audio-player"></audio>
+
+  <script>
+    const subjectData = {js_data};
+    
+    const audioEl = document.getElementById('audio-player');
+    const playBtn = document.getElementById('emoji-play');
+    const textDisplay = document.getElementById('text-display');
+    const labelDisplay = document.getElementById('current-label');
+    const fileDisplay = document.getElementById('current-file');
+    const asrSelect = document.getElementById('asr-select');
+    
+    let currentSubjectId = null;
+
+    function switchSubject(id) {{
+      const data = subjectData[id];
+      if (!data) return;
+      currentSubjectId = id;
+
+      document.querySelectorAll('.switch-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('btn-' + id).classList.add('active');
+      
+      audioEl.pause();
+      playBtn.classList.add('paused');
+      playBtn.innerHTML = "🗣️";
+      audioEl.src = data.src;
+
+      labelDisplay.textContent = data.label;
+      labelDisplay.style.color = data.color;
+      fileDisplay.textContent = data.filename;
+
+      populateASRSelect(data.transcripts);
+    }}
+
+    function populateASRSelect(transcriptsDict) {{
+      asrSelect.innerHTML = "";
+      const keys = Object.keys(transcriptsDict).sort(); // Ordina alfabeticamente
+      
+      keys.forEach((key, index) => {{
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.innerHTML = key;
+        if (index === 0) opt.selected = true; 
+        asrSelect.appendChild(opt);
+      }});
+      
+      if (keys.length === 0) {{
+        const opt = document.createElement('option');
+        opt.innerHTML = "Nessuna trascrizione";
+        asrSelect.appendChild(opt);
+      }}
+
+      updateTranscriptText(); 
+    }}
+
+    function updateTranscriptText() {{
+      const data = subjectData[currentSubjectId];
+      const selectedKey = asrSelect.value;
+      if (data && data.transcripts && data.transcripts[selectedKey]) {{
+        textDisplay.textContent = data.transcripts[selectedKey];
+      }} else {{
+        textDisplay.textContent = "Testo non disponibile.";
+      }}
+    }}
+
+    playBtn.addEventListener('click', () => {{
+      if (!audioEl.src || audioEl.src === window.location.href) return;
+      if (audioEl.paused) {{
+        audioEl.play();
+        playBtn.classList.remove('paused');
+        playBtn.innerHTML = "🗣️";
+      }} else {{
+        audioEl.pause();
+        playBtn.classList.add('paused');
+        playBtn.innerHTML = "🗣️";
+      }}
+    }});
+    
+    audioEl.addEventListener('ended', () => {{
+      playBtn.classList.add('paused');
+      playBtn.innerHTML = "🗣️";
+    }});
+
+    setTimeout(() => {{
+      if(subjectData['cn'] && subjectData['cn'].src) {{
+        switchSubject('cn');
+      }} else if (subjectData['ad'] && subjectData['ad'].src) {{
+        switchSubject('ad');
+      }}
+    }}, 500);
+  </script>
+  """
+
+  print(html)
+else:
+  print("""**Nota sulla Privacy:** Dataset non presente. I file audio originali del dataset ADReSSo non possono essere distribuiti pubblicamente.""")
+```
+
+---
+
+## Generazione delle Ipotesi
+
+Per il **Modello 4**, estraiamo **N trascrizioni alternative** per ogni audio, ciascuna associata al proprio **score di confidenza** globale.
+
+::: columns
+::: {.column width="50%" .fragment}
+### Wav2Vec2
+<div style="font-size: 0.7em;">
+Otteniamo diverse ipotesi variando i parametri di decoding ($\alpha, \beta$):
+
+$$ S(y) = \log P_{AM}(y|x) + \alpha \log P_{LM}(y) + \beta |y| $$
+</div>
+
+:::
+::: {.column width="50%" .fragment}
+### Whisper
+<div style="font-size: 0.7em;">
+Otteniamo le ipotesi dalle alternative del beam search.
+</div>
+
+:::
+:::
+
+::: {.fragment}
+
+<div style="font-size: 0.9em;">
+Come evidenziato da Pan et al., l'uso di ipotesi multiple funge da **Data Augmentation**. Esporre il classificatore a diverse varianti (anche errate o rumorose) della stessa frase lo rende più robusto alle incertezze dell'ASR.
+</div>
+
+:::
+
+---
+
+## Risultati {.smaller}
+
+Confronto sul test set (**Majority Voting**).
+
+<style>
+.reveal table { font-size: 0.85em; border-collapse: collapse; }
+.reveal table th { border-bottom: 2px solid #333; text-align: center; }
+.reveal table td { text-align: center; padding: 6px; }
+.reveal table tbody { border-bottom: 1px solid #ccc; }
+.reveal table tbody tr:last-child td { border-bottom: none; }
+</style>
+
+<table>
+<thead>
+  <tr>
+    <th style="text-align: left;">Modello</th>
+    <th>Fonte</th>
+    <th>Accuracy</th>
+    <th>Precision (CN/AD)</th>
+    <th>Recall (CN/AD)</th>
+    <th>F1-Score (CN/AD)</th>
+  </tr>
+</thead>
+
+<tbody class="fragment fade-in-then-semi-out">
+  <tr>
+    <td rowspan="2" style="text-align: left; vertical-align: middle;"><b>M1: Acustico</b></td>
+    <td>Paper</td>
+    <td>74.65%</td>
+    <td><b>72.5</b> / 77.4</td>
+    <td>80.6 / <b>68.6</b></td>
+    <td>76.3 / <b>72.7</b></td>
+  </tr>
+  <tr>
+    <td><b>Noi</b></td>
+    <td><b>74.65%</b></td>
+    <td>69.6 / <b>84.0</b></td>
+    <td><b>88.9</b> / 60.0</td>
+    <td><b>78.0</b> / 70.0</td>
+  </tr>
+</tbody>
+
+<tbody class="fragment fade-in-then-semi-out">
+  <tr>
+    <td rowspan="2" style="text-align: left; vertical-align: middle;"><b>M2: Linguistico</b></td>
+    <td>Paper</td>
+    <td><b>80.28%</b></td>
+    <td><b>76.2</b> / <b>86.2</b></td>
+    <td>88.9 / <b>71.4</b></td>
+    <td><b>82.1</b> / <b>78.1</b></td>
+  </tr>
+  <tr>
+    <td>Noi</td>
+    <td>78.87%</td>
+    <td>74.4 / 85.7</td>
+    <td>88.9 / 68.6</td>
+    <td>81.0 / 76.2</td>
+  </tr>
+</tbody>
+
+<tbody class="fragment fade-in-then-semi-out">
+  <tr>
+    <td rowspan="2" style="text-align: left; vertical-align: middle;"><b>M3: Fusione</b></td>
+    <td>Paper</td>
+    <td>78.87%</td>
+    <td>76.9 / 81.2</td>
+    <td>83.3 / 74.3</td>
+    <td>80.0 / 77.6</td>
+  </tr>
+  <tr>
+    <td><b>Noi</b></td>
+    <td><b>83.10%</b></td>
+    <td><b>78.6</b> / <b>89.7</b></td>
+    <td><b>91.7</b> / 74.3</td>
+    <td><b>84.6</b> / <b>81.2</b></td>
+  </tr>
+</tbody>
+
+<tbody class="fragment">
+  <tr>
+    <td rowspan="2" style="text-align: left; vertical-align: middle;"><b>M4: Confidence</b></td>
+    <td>Paper</td>
+    <td>84.51%</td>
+    <td><b>87.9</b> / 81.6</td>
+    <td>80.6 / <b>88.6</b></td>
+    <td>84.1 / <b>84.9</b></td>
+  </tr>
+  <tr>
+    <td><b>Noi (N=5)</b></td>
+    <td><b>85.92%</b></td>
+    <td>82.5 / <b>90.3</b></td>
+    <td><b>91.7</b> / 80.0</td>
+    <td><b>86.8</b> / 84.8</td>
+  </tr>
+</tbody>
+</table>
+
+---
+
+## Conclusioni
+
+La replicazione dello studio ha confermato la validità della pipeline proposta, con prestazioni che superano i benchmark originali.
+
+::: {.incremental}
+- **Efficacia della Replica:** Il nostro sistema raggiunge un'accuratezza dell'**85.92%** (vs 84.51% del paper originale) sul task ADReSSo.
+- **Ruolo della Confidenza:** L'approccio *Confidence-Aware* si conferma il più performante. Tuttavia, l'uso di **BERT-Large** in questa specifica configurazione (rispetto al *Base* degli altri modelli) richiede cautela nell'attribuire il miglioramento esclusivamente allo score di confidenza.
+:::
+
+---
+
+## Limiti e Sviluppi Futuri
+
+Per isolare i reali contributi delle diverse componenti, proponiamo le seguenti linee di ricerca:
+
+::: columns
+::: {.column width="50%" .fragment .fade-in-then-semi-out}
+### 1. Language Model Clinico
+<div style="font-size: 0.9em;">
+L'attuale LM (addestrato su *LibriSpeech*) tende a correggere gli errori grammaticali, mascherando i sintomi.
+<br><br>
+**Proposta:** Addestrare il Language Model su corpora specifici.
+</div>
+
+:::
+
+::: {.column width="50%" .fragment}
+### 2. Architettura "Trimodale"
+<div style="font-size: 0.9em;">
+Attualmente, le feature acustiche (M3) e lo score di confidenza (M4) sono trattati in modelli separati.
+<br><br>
+**Proposta:** Sviluppare un'architettura unificata che integri contemporaneamente:
+1. Embedding del **Testo** (BERT).
+2. Feature **Acustiche** (Wav2Vec2).
+3. Scalare di **Confidenza**.
+</div>
+
+:::
+:::
+
+---
+
+## Riferimenti Bibliografici
+
+::: {#refs}
+:::
