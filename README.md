@@ -40,6 +40,8 @@ This approach ensures the BERT classifier receives a rich set of alternative tra
 -   `/src`: Core Python source code (dataset, models, factories, training logic).
 -   `/scripts`: Executable scripts for running each step of the pipeline.
 -   `/notebooks`: Jupyter Notebooks for exploratory data analysis (EDA) and preliminary experiments.
+-   `/docs`: Documentation assets, including Graphviz (`.dot`) architecture diagrams.
+-   `/presentations`: Source code for the project slides (Quarto).
 -   `config.yml`: Central configuration file for all hyperparameters and paths.
 -   `environment.yml`: Conda environment file for easy setup.
 
