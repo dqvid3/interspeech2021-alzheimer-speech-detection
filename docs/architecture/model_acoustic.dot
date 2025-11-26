@@ -1,0 +1,35 @@
+digraph Model_Acoustic {
+    rankdir=TB;
+    newrank=true;
+    node [shape=box, style="filled,rounded", fontname="Arial", fontsize=11];
+    edge [fontname="Arial", fontsize=10];
+
+    # Inputs
+    subgraph cluster_inputs {
+        label = "Input";
+        style = dashed;
+        audio [label="Raw Audio Waveform\n(16kHz)", fillcolor="#E0E0E0"];
+    }
+
+    # Wav2Vec2 Model
+    w2v [label="Wav2Vec 2.0 Large\n(Frozen)", fillcolor="#ADD8E6"];
+
+    # Feature Extraction & Pooling
+    subgraph cluster_processing {
+        label = "Feature Extraction";
+        style = dotted;
+
+        hidden_states [label="Layer N Hidden States\n(Sequence: Frames x 1024)", fillcolor="#B0E0E6"];
+
+        pooling [label="Mean Pooling", shape=trapezium, fillcolor="#FFE4B5"];
+    }
+
+    # Classifier
+    classifier [label="Classifier\n(Random Forest / SVM)", fillcolor="#FFDAB9"];
+
+    # Connections
+    audio -> w2v;
+    w2v -> hidden_states;
+    hidden_states -> pooling;
+    pooling -> classifier;
+}
