@@ -3,20 +3,17 @@ title: "Rilevamento della Demenza di Alzheimer tramite Analisi del Parlato"
 subtitle: |
   Replicazione e Modernizzazione di Pan et al. (2021)
   <br><br>
-  <a href="https://github.com/dqvid3/interspeech2021-alzheimer-speech-detection" target="_blank" title="Vai al codice su GitHub" style="text-decoration: none; color: #333; opacity: 0.7; transition: opacity 0.3s;">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512" height="40" style="fill: currentColor;">
-      <path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.6-5.2-1.6-1.6-3.9-2.3-5.3-1zM150.2 384.6c-1 1.6-2.6.2-3.6-1.5-1-1.8-1.3-4-.3-5.7 1-1.6 2.6-.2 3.6 1.5 1 1.8 1.3 4 .3 5.7zM180.3 394c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-101.8-13.8c-1.3.3-2.9 3-2.6 6.2.3 2.6 2.6 4.3 3.9 4 1.3-.3 2.9-3 2.6-6.2-.3-2.6-2.6-4.3-3.9-4z"/>
-    </svg>
-  </a>
+  [ {{< fa brands github size=2xl >}} ](https://github.com/dqvid3/interspeech2021-alzheimer-speech-detection){.github-icon title="Vai al codice su GitHub" target="_blank"}
 author: "Davide Bonura"
 institute: "Università degli Studi di Palermo"
 date: today
 format: 
   revealjs:
     theme: white
+    css: styles.css 
     transition: slide
     slide-number: true
-    preview-links: auto
+    preview-links: false
     logo: "imgs/unipa-logo.png"
     incremental: false
     width: 1280
@@ -25,9 +22,20 @@ format:
     csl: https://www.zotero.org/styles/ieee
     lightbox: true
     center: true
-    #embed-resources: true
-    #standalone: true
+    embed-resources: true
+    standalone: true
+header-includes: |
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      var links = document.getElementsByTagName("a");
+      for (var i = 0; i < links.length; i++) {
+        links[i].setAttribute("target", "_blank");
+        links[i].setAttribute("rel", "noopener noreferrer");
+      }
+    });
+  </script>
 ---
+
 ## Scenario Epidemiologico Globale
 
 Secondo *Alzheimer’s Disease International*, i dati delineano un'emergenza sanitaria in rapida crescita.
@@ -36,7 +44,7 @@ Secondo *Alzheimer’s Disease International*, i dati delineano un'emergenza san
 ::: {.column width="50%" .fragment .fade-in-then-semi-out}
 ### Prevalenza in Esplosione
 <div style="font-size: 0.9em;">
-- **55+ milioni** di persone affette oggi nel mondo.
+- **55+ milioni** di persone affette da demenza oggi nel mondo.
 - **139 milioni** previsti entro il 2050.
 - **L'Alzheimer è la causa primaria:** rappresenta il **60-70%** di tutti i casi
 </div>
@@ -123,6 +131,7 @@ Nonostante l'urgenza, gli strumenti clinici attuali non sono adatti allo screeni
 ### Test Neuropsicologici
 <div style="font-size: 0.9em;">
 *(es. MMSE, MoCA)*
+
 - Richiedono clinici esperti e tempo (stress per il SSN).
 - Soggetti a bias culturali e di scolarizzazione.
 </div>
@@ -133,6 +142,7 @@ Nonostante l'urgenza, gli strumenti clinici attuali non sono adatti allo screeni
 ### Biomarcatori
 <div style="font-size: 0.9em;">
 *(es. MRI, CSF)*
+
 - **Invasivi**.
 - **Costosi** e non disponibili ovunque.
 </div>
@@ -148,8 +158,9 @@ La letteratura scientifica identifica segnali che possono degradarsi precocement
 
 ::: columns
 ::: {.column width="50%" .fragment .fade-in-then-semi-out}
-### Acustici & Prosodici
+### Acustici
 <div style="font-size: 0.9em;">
+
 - **Pause e Silenzi:** Aumento della frequenza e durata delle pause intra-frase [@rohanian21_interspeech].
 - **Disfluenze:** Riempitivi (uh, um), ripetizioni, autocorrezzioni.
 - **Qualità della Voce:** Variazioni di frequenza e ampiezza (Jitter/Shimmer).
@@ -160,9 +171,36 @@ La letteratura scientifica identifica segnali che possono degradarsi precocement
 ::: {.column width="50%" .fragment}
 ### Linguistici
 <div style="font-size: 0.9em;">
+
 - **Impoverimento Lessicale:** Ridotta diversità (*Type-Token Ratio* [@syed21_interspeech]) e uso di termini generici.
 - **Sintassi:** Semplificazione grammaticale ("telegraphic speech").
 - **Coerenza:** Perdita del filo logico nel discorso spontaneo.
+</div>
+
+:::
+:::
+
+---
+
+## Il Dataset: ADReSSo Challenge [@luz21_interspeech]
+
+Il corpus è composto da registrazioni del task **"Cookie Theft"**.
+
+::: columns
+::: {.column width="40%"}
+![](imgs/cookie-theft.png){width="100%"}
+:::
+
+::: {.column width="60%"}
+<div style="font-size: 0.9em;">
+Per evitare che il modello impari bias demografici invece che patologici, i gruppi sono stati bilanciati tramite **Propensity Score Matching**.
+
+|  | Gruppo AD | Gruppo CN |
+| :--- | :---: | :---: |
+| **Soggetti** | 122 | 115 |
+| **Età Media** | 69.4 (± 6.9) | 66.1 (± 6.3) |
+| **Genere (D/U)** | 65% / 35% | 65% / 35% |
+| **Durata Audio** | 65.7s (± 38.6) | 61.6s (± 26.9) |
 </div>
 
 :::
@@ -223,30 +261,6 @@ Come gestire l'alto tasso di errore nelle trascrizioni automatiche?
 </table>
 
 ---
-
-## Il Dataset: ADReSSo Challenge [@luz21_interspeech]
-
-Il corpus è composto da registrazioni del task **"Cookie Theft"**.
-
-::: columns
-::: {.column width="40%"}
-![](imgs/cookie-theft.png){width="100%"}
-:::
-
-::: {.column width="60%"}
-<div style="font-size: 0.9em;">
-Per evitare che il modello impari bias demografici invece che patologici, i gruppi sono stati bilanciati tramite **Propensity Score Matching**.
-
-|  | Gruppo AD | Gruppo CN |
-| :--- | :---: | :---: |
-| **Soggetti** | 122 | 115 |
-| **Età Media** | 69.4 (± 6.9) | 66.1 (± 6.3) |
-| **Genere (D/U)** | 65% / 35% | 65% / 35% |
-| **Durata Audio** | 65.7s (± 38.6) | 61.6s (± 26.9) |
-</div>
-
-:::
-:::
 
 ## Analisi Esplorativa: Flusso e Ritmo
 
@@ -597,7 +611,7 @@ if os.path.exists(AUDIO_ROOT) and os.path.isdir(AUDIO_ROOT):
 
     function populateASRSelect(transcriptsDict) {{
       asrSelect.innerHTML = "";
-      const keys = Object.keys(transcriptsDict).sort(); // Ordina alfabeticamente
+      const keys = Object.keys(transcriptsDict).sort();
       
       keys.forEach((key, index) => {{
         const opt = document.createElement('option');
@@ -811,7 +825,7 @@ Per isolare i reali contributi delle diverse componenti, proponiamo le seguenti 
 ::: columns
 ::: {.column width="50%" .fragment .fade-in-then-semi-out}
 ### 1. Language Model Clinico
-<div style="font-size: 0.9em;">
+<div style="font-size: 0.8em;">
 L'attuale LM (addestrato su *LibriSpeech*) tende a correggere gli errori grammaticali, mascherando i sintomi.
 <br><br>
 **Proposta:** Addestrare il Language Model su corpora specifici.
@@ -821,10 +835,11 @@ L'attuale LM (addestrato su *LibriSpeech*) tende a correggere gli errori grammat
 
 ::: {.column width="50%" .fragment}
 ### 2. Architettura "Trimodale"
-<div style="font-size: 0.9em;">
+<div style="font-size: 0.8em;">
 Attualmente, le feature acustiche (M3) e lo score di confidenza (M4) sono trattati in modelli separati.
 <br><br>
 **Proposta:** Sviluppare un'architettura unificata che integri contemporaneamente:
+
 1. Embedding del **Testo** (BERT).
 2. Feature **Acustiche** (Wav2Vec2).
 3. Scalare di **Confidenza**.
