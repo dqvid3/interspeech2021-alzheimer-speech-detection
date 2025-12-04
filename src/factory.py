@@ -1,4 +1,4 @@
-from transformers import BertTokenizer
+from transformers import AutoTokenizer
 
 from src.dataset import ADDataset, create_dataset_csv
 from src.model import ADBERTClassifier
@@ -7,7 +7,7 @@ from src.utils import get_acoustic_feature_paths
 def build_tokenizer(config):
     """Factory function to build and return a tokenizer."""
     print(f"Loading tokenizer: {config['model_name']}")
-    tokenizer = BertTokenizer.from_pretrained(config['model_name'])
+    tokenizer = AutoTokenizer.from_pretrained(config['model_name'])
     return tokenizer
 
 def build_dataset(config, paths, dataset_type, tokenizer):

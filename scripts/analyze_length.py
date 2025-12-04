@@ -1,5 +1,5 @@
 import pandas as pd
-from transformers import BertTokenizer
+from transformers import AutoTokenizer
 import matplotlib.pyplot as plt
 import seaborn as sns
 from tqdm import tqdm
@@ -31,7 +31,7 @@ def analyze_token_lengths(config, paths):
         return
 
     print(f"Loading tokenizer: {model_name}...")
-    tokenizer = BertTokenizer.from_pretrained(model_name)
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
     
     print("Calculating token lengths for the training set...")
     train_token_lengths = [len(tokenizer.encode(text)) for text in tqdm(train_texts)]

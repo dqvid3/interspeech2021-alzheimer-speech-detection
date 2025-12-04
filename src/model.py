@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from transformers import BertModel
+from transformers import AutoModel
 
 class ADBERTClassifier(nn.Module):
     """
@@ -19,7 +19,7 @@ class ADBERTClassifier(nn.Module):
         self.model_type = config['model_type']
 
         # Load BERT model
-        self.bert = BertModel.from_pretrained(model_name, output_hidden_states=True)
+        self.bert = AutoModel.from_pretrained(model_name, output_hidden_states=True)
         self.bert_hidden_size = self.bert.config.hidden_size
         
         if self.model_type == 'fusion':
