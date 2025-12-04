@@ -15,12 +15,12 @@ def load_whisperx_model(options, device):
         model_path = snapshot_download(repo_id=options['model_name'])
     else:
         model_path = options['model_name']
-
+    
     model = whisperx.load_model(
         model_path,
-        options['device'],
+        device=device.type,
         compute_type=options['compute_type'],
-        language="en",
+        language=options['language'],
         return_scores=True
     )
     print("WhisperX model loaded.")
@@ -31,7 +31,6 @@ def load_wav2vec2_model(options, device):
     Loads the Wav2Vec2 model and dynamically builds the processor with a custom KenLM model.
     """
     from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor, Wav2Vec2ProcessorWithLM
-    import torch
     from pyctcdecode import build_ctcdecoder
     from huggingface_hub import hf_hub_download
 

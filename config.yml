@@ -46,6 +46,7 @@ transcription:
     # The number of hypotheses to generate. This sets both 'best_of' and 'beam_size'.
     n_hypotheses: 30
     batch_size: 16 # Internal batch size for processing segments of a single audio file.
+    language: "en"
 
   wav2vec2_options:
     model_name: "facebook/wav2vec2-large-960h-lv60-self"
