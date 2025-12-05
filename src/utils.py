@@ -117,3 +117,13 @@ def setup_experiment():
     paths = _get_project_paths(config)
     
     return config, paths, device
+
+def get_label(label):
+    s = str(label).lower()
+
+    if 'mci' in s:
+        return 2
+    elif 'ad' in s:
+        return 1
+    
+    return 0 # Control

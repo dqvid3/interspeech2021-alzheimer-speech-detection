@@ -15,6 +15,8 @@ from sklearn.metrics import accuracy_score, precision_recall_fscore_support
 from scipy.stats import mode
 from tqdm import tqdm
 
+from src.utils import get_label
+
 def main():
     with open("config.yml", 'r') as f:
         config = yaml.safe_load(f)
@@ -48,7 +50,11 @@ def main():
         return
     with open(train_metadata_path, 'r') as f:
         train_metadata = json.load(f)
-    y_train_full = np.array([1 if 'ad/' in path or 'ad\\' in path else 0 for path in train_metadata])
+
+    y_train_full = []
+    for path in train_metadata:
+        y_train_full.append(get_label(path))
+    y_train_full = np.array(y_train_full)
 
     # Load test data and labels
     test_features_dir = os.path.join(features_base_dir, 'test')
@@ -61,8 +67,11 @@ def main():
 
     # Load true labels for the test set from the provided CSV
     test_labels_df = pd.read_csv(config['data']['test_labels_csv'])
-    # Create a mapping from ID (e.g., 'adrsdt001') to Label (0 or 1)
-    label_map = {row['ID']: 1 if row['Dx'] == 'ProbableAD' else 0 for _, row in test_labels_df.iterrows()}
+    # Create a mapping from ID (e.g., 'adrsdt001') to Label
+    label_map = {}
+    for _, row in test_labels_df.iterrows():
+        label_map[row['ID']] = get_label(row['Dx'])
+
     # Get the ID from the metadata path and look up the label
     test_file_ids = [os.path.splitext(os.path.basename(p))[0] for p in test_metadata]
     y_test_full = np.array([label_map[id] for id in test_file_ids])
@@ -223,7 +232,7 @@ def main():
             color=style['color']
         )
         
-          Plot Ensemble Accuracy on Test Set (Solid line)
+        # Plot Ensemble Accuracy on Test Set (Solid line)
         ax.plot(
             clf_df['layer_num'], 
             clf_df['test_ensemble_vote_acc'], 

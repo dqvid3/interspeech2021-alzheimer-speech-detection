@@ -23,7 +23,8 @@ def build_dataset(config, paths, dataset_type, tokenizer):
         transcripts_root=paths['transcripts_root'],
         output_dir=paths['processed_data_dir'],
         test_labels_path=config['data']['test_labels_csv'] if dataset_type == 'test' else None,
-        num_hypotheses=num_hypotheses
+        num_hypotheses=num_hypotheses,
+        num_classes=config['num_classes']
     )
 
     csv_path = paths['train_csv'] if dataset_type == 'train' else paths['test_csv']

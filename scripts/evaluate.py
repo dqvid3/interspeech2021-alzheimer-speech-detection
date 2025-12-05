@@ -11,7 +11,7 @@ from src.training import eval_model
 from src.utils import setup_experiment
 from src.factory import build_dataset, build_model, build_tokenizer
 
-if __name__ == "__main__":
+def main():
     config, paths, device = setup_experiment()
 
     train_config = config['training']
@@ -58,12 +58,17 @@ if __name__ == "__main__":
     ensemble_preds_avg = np.argmax(mean_probs, axis=1)
     ensemble_accuracy_avg = accuracy_score(true_labels, ensemble_preds_avg)
     print(f"Ensemble Accuracy (Probability Averaging): {ensemble_accuracy_avg:.4f}\n")
+
+    if config['num_classes'] == 3:
+        target_names = ['CTR', 'AD', 'MCI']
+    else:
+        target_names = ['Control', 'AD']
     
     print("Classification Report for Ensemble (Majority Vote)")
-    print(classification_report(true_labels, ensemble_preds_vote, target_names=['Control', 'ProbableAD']))
+    print(classification_report(true_labels, ensemble_preds_vote, target_names=target_names))
     
     print("Classification Report for Ensemble (Probability Averaging)")
-    print(classification_report(true_labels, ensemble_preds_avg, target_names=['Control', 'ProbableAD']))
+    print(classification_report(true_labels, ensemble_preds_avg, target_names=target_names))
 
     # Save final evaluation report
     final_report = {
@@ -73,10 +78,10 @@ if __name__ == "__main__":
         "ensemble_accuracy_majority_vote": ensemble_accuracy_vote,
         "ensemble_accuracy_probability_averaging": ensemble_accuracy_avg,
         "classification_report_majority_vote": classification_report(
-            true_labels, ensemble_preds_vote, target_names=['Control', 'ProbableAD'], output_dict=True
+            true_labels, ensemble_preds_vote, target_names=target_names, output_dict=True
         ),
         "classification_report_probability_averaging": classification_report(
-            true_labels, ensemble_preds_avg, target_names=['Control', 'ProbableAD'], output_dict=True
+            true_labels, ensemble_preds_avg, target_names=target_names, output_dict=True
         )
     }
 
@@ -85,3 +90,6 @@ if __name__ == "__main__":
         json.dump(final_report, f, indent=2)
     
     print(f"\nFinal evaluation report saved to: {report_path}")
+
+if __name__ == "__main__":
+    main()

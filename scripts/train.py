@@ -12,6 +12,7 @@ from src.factory import build_dataset, build_model, build_tokenizer
 
 def main():
     config, paths, device = setup_experiment()
+    train_config = config['training']
     
     os.makedirs(paths['classifier_output_dir'], exist_ok=True)
     tokenizer = build_tokenizer(config)
@@ -22,6 +23,17 @@ def main():
     groups = full_train_dataset.df['source_file'] 
     n_splits = config['n_splits']
 
+    class_counts = y.value_counts().sort_index()
+    print(f"Class distribution in training data: {class_counts.to_dict()}")
+
+    class_weights = None
+    if train_config['use_class_weights']:
+        n_samples = len(y)
+        n_classes = config['num_classes']
+        weights = n_samples / (n_classes * class_counts)
+        class_weights = torch.tensor(weights.values, dtype=torch.float).to(device)
+        print(f"Using class Weights: {class_weights}")
+    
     if n_splits == 1:
         n_splits_for_single_run = int(1 / config['validation_split_fraction'])
         sgkf = StratifiedGroupKFold(n_splits=n_splits_for_single_run, shuffle=True, random_state=config['seed'])
@@ -29,7 +41,6 @@ def main():
         sgkf = StratifiedGroupKFold(n_splits=n_splits, shuffle=True, random_state=config['seed'])
 
     sgkf_splitter = sgkf.split(X, y, groups)
-    train_config = config['training']
 
     for fold in range(n_splits):
         print(f"Fold {fold + 1}/{n_splits}")
@@ -63,7 +74,7 @@ def main():
             num_warmup_steps=int(total_steps * train_config['warmup_fraction']), 
             num_training_steps=total_steps
         )
-        loss_fn = torch.nn.CrossEntropyLoss()
+        loss_fn = torch.nn.CrossEntropyLoss(weight=class_weights)
         patience = train_config['patience']
         early_stopping = EarlyStopping(patience=patience, mode='max', min_delta=0.001)
     

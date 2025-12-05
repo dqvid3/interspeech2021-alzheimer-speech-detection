@@ -18,11 +18,12 @@ training:
   patience: 3
   gradient_clip_norm: 0.0 # Use 0 to disable
   warmup_fraction: 0.1
+  use_class_weights: false
 
 data:
-  train_audio_root: "data/ADReSSo21-diagnosis-train/ADReSSo21/diagnosis/train/audio"
-  test_audio_root: "data/ADReSSo21-diagnosis-test/ADReSSo21/diagnosis/test-dist/audio"
-  test_labels_csv: "data/label_test_task1.csv"
+  train_audio_root: "data/ADReSSo21/ADReSSo21-diagnosis-train/ADReSSo21/diagnosis/train/audio"
+  test_audio_root: "data/ADReSSo21/ADReSSo21-diagnosis-test/ADReSSo21/diagnosis/test-dist/audio"
+  test_labels_csv: "data/ADReSSo21/label_test_task1.csv"
   processed_data_dir: "data/processed" # Directory for generated train.csv/test.csv
 
 feature_extraction:

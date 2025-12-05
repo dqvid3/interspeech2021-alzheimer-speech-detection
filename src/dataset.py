@@ -9,6 +9,8 @@ import json
 import math
 import numpy as np
 
+from src.utils import get_label
+
 class ADDataset(Dataset):
     """
     Custom PyTorch Dataset for the Alzheimer's Dementia detection task.
@@ -67,7 +69,7 @@ class ADDataset(Dataset):
 
         return item
     
-def create_dataset_csv(transcripts_root, output_dir, test_labels_path=None, num_hypotheses=None):
+def create_dataset_csv(transcripts_root, output_dir, test_labels_path=None, num_hypotheses=None, num_classes=2):
     """
     Reads JSON files with transcription hypotheses and creates separate CSV files 
     for training and/or testing.
@@ -95,10 +97,9 @@ def create_dataset_csv(transcripts_root, output_dir, test_labels_path=None, num_
     if dataset_type == "test":
         labels_df = pd.read_csv(test_labels_path)
         # Create a dictionary for fast lookup: {'adrsdt15': 0, 'adrsdt46': 1}
-        label_map = {
-            row['ID']: 1 if row['Dx'] == 'ProbableAD' else 0 
-            for _, row in labels_df.iterrows()
-        }
+        label_map = {}
+        for _, row in labels_df.iterrows():
+            label_map[row['ID']] = get_label(row['Dx'])
 
     # Search for all JSON files in the subdirectories (ad, cn)
     glob_pattern = os.path.join(data_path, "*/*.json") if dataset_type == "train" else os.path.join(data_path, "*.json")
@@ -109,11 +110,16 @@ def create_dataset_csv(transcripts_root, output_dir, test_labels_path=None, num_
         
         if dataset_type == "train":
             # For train set, infer from folder structure
-            label = 1 if os.path.basename(os.path.dirname(json_file)) == 'ad' else 0
+            folder_name = os.path.basename(os.path.dirname(json_file))
+            label = get_label(folder_name)
         else:
             # Look up the label in the map for test set
             file_id = os.path.splitext(os.path.basename(json_file))[0]
             label = label_map[file_id]
+        
+        if label >= num_classes:
+            print(f"Skipping file {source_filename} with unknown label.")
+            continue
 
         with open(json_file, 'r', encoding='utf-8') as f:
             hypotheses = json.load(f)
