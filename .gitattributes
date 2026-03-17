@@ -1,0 +1,3 @@
+# Exclude Jupyter notebooks from GitHub language stats
+# (repo is primarily Python scripts; notebooks are EDA/exploratory only)
+*.ipynb linguist-detectable=false
